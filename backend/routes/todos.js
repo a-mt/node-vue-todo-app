@@ -55,7 +55,15 @@ router.patch('/:id', getTodo, async (req, res) => {
 // DELETE a todo
 router.delete('/:id', getTodo, async (req, res) => {
     try {
-        await res.todo.remove();
+        const deletedTodo = await Todo.findById(req.params.id);
+        await Todo.deleteOne({ _id: req.params.id });
+        
+        // Mettre à jour les positions des todos restants
+        await Todo.updateMany(
+            { position: { $gt: deletedTodo.position } },
+            { $inc: { position: -1 } }
+        );
+        
         res.json({ message: 'Deleted Todo' });
     } catch (err) {
         res.status(500).json({ message: err.message });
