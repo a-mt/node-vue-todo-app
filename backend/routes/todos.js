@@ -1,3 +1,5 @@
+// backend/routes/todos.js
+
 const express = require('express');
 const router = express.Router();
 const Todo = require('../models/Todo');
@@ -5,7 +7,7 @@ const Todo = require('../models/Todo');
 // GET all todos
 router.get('/', async (req, res) => {
     try {
-        const todos = await Todo.find();
+        const todos = await Todo.find().sort('position').exec();
         res.json(todos);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -19,10 +21,14 @@ router.get('/:id', getTodo, (req, res) => {
 
 // CREATE a todo
 router.post('/', async (req, res) => {
-    const todo = new Todo({
-        title: req.body.title
-    });
     try {
+        const maxPositionTodo = await Todo.findOne().sort('-position').exec();
+        const newPosition = maxPositionTodo ? maxPositionTodo.position + 1 : 1;
+
+        const todo = new Todo({
+            title: req.body.title,
+            position: newPosition
+        });
         const newTodo = await todo.save();
         res.status(201).json(newTodo);
     } catch (err) {
@@ -51,6 +57,29 @@ router.delete('/:id', getTodo, async (req, res) => {
     try {
         await res.todo.remove();
         res.json({ message: 'Deleted Todo' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// REORDER todos
+router.put('/reorder', async (req, res) => {
+    const { todos } = req.body; // Array de todos avec les nouvelles positions
+
+    if (!Array.isArray(todos)) {
+        return res.status(400).json({ message: 'Invalid data format' });
+    }
+
+    try {
+        const bulkOps = todos.map((todo, index) => ({
+            updateOne: {
+                filter: { _id: todo._id },
+                update: { position: index + 1 }
+            }
+        }));
+
+        await Todo.bulkWrite(bulkOps);
+        res.json({ message: 'Order updated successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
