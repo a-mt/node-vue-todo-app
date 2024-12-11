@@ -10,21 +10,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Environment Variables
-.env
-.env.local
-.env.*.local
-backend/.env
-frontend/.env
-
 # Build Output
 frontend/dist/
 frontend/build/
-
-# Docker
-docker-compose.override.yml
-**/Dockerfile
-**/docker-compose.yml
 
 # Dependency directories
 backend/node_modules/
@@ -94,5 +82,5 @@ frontend/.env
 backend/node_modules/
 backend/.env
 
-# Ignore database files if any
+# Ignore database files
 mongo-data/
