@@ -15,12 +15,14 @@ app.use('/api/todos', todoRoutes);
 
 mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    family: 4  // Forcer IPv4
 }).then(() => {
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {  // Écouter sur toutes les interfaces
         console.log(`Server is running on port ${PORT}`);
     });
 }).catch(err => {
     console.error('MongoDB connection error:', err);
+    process.exit(1);  // Arrêter le processus en cas d'erreur
 });
