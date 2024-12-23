@@ -1,0 +1,72 @@
+name: Correction Access Management
+
+on:
+  repository_dispatch:
+    types: [correction_access_requested]
+
+jobs:
+  process-correction-access:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Event
+        env:
+          EVENT_DATA: ${{ toJSON(github.event) }}
+        run: |
+          echo "Event data received:"
+          echo "$EVENT_DATA"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Create custom branch
+        env:
+          CANDIDATE_EMAIL: ${{ github.event.client_payload.email }}
+          FEATURE_NAME: ${{ github.event.client_payload.feature }}
+          ACCESS_CODE: ${{ github.event.client_payload.access_code }}
+        run: |
+          # Configuration Git
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "action@github.com"
+          
+          # Création de la branche
+          SAFE_EMAIL=$(echo "$CANDIDATE_EMAIL" | sed 's/@/-at-/g' | sed 's/\./-dot-/g')
+          BRANCH_NAME="correction/${FEATURE_NAME}/${SAFE_EMAIL}"
+          SOURCE_BRANCH="feature/task-tags"
+          
+          echo "Creating branch $BRANCH_NAME from $SOURCE_BRANCH"
+          
+          # Récupérer toutes les branches
+          git fetch origin
+          
+          # Créer la nouvelle branche
+          git checkout -b "$BRANCH_NAME" "origin/$SOURCE_BRANCH"
+          
+          # Créer le README
+          cat > README-CORRECTION.md << EOF
+          # Correction de la feature ${FEATURE_NAME}
+          
+          Cette branche a été générée automatiquement suite à votre demande d'accès.
+          
+          ## Informations
+          - Code d'accès : ${ACCESS_CODE}
+          - Date de génération : $(date '+%Y-%m-%d %H:%M:%S')
+          - Email : ${CANDIDATE_EMAIL}
+          
+          ## Important
+          - Cette branche est en lecture seule
+          - Ne pas pousser de modifications
+          - Retournez à votre branche après consultation
+          
+          ## Pour revenir à votre branche
+          \`\`\`bash
+          git checkout votre-branche-de-travail
+          \`\`\`
+          EOF
+          
+          # Commit et push
+          git add README-CORRECTION.md
+          git commit -m "docs: Add correction instructions"
+          git push origin "$BRANCH_NAME"
