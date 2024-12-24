@@ -6,7 +6,8 @@ on:
 
 permissions:
   contents: write
-  administration: write
+  pull-requests: write
+  issues: write
 
 jobs:
   process-correction-access:
