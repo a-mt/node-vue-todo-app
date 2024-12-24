@@ -4,6 +4,10 @@ on:
   repository_dispatch:
     types: [correction_access_requested]
 
+permissions:
+  contents: write
+  administration: write
+
 jobs:
   process-correction-access:
     runs-on: ubuntu-latest
@@ -26,23 +30,23 @@ jobs:
           CANDIDATE_EMAIL: ${{ github.event.client_payload.email }}
           FEATURE_NAME: ${{ github.event.client_payload.feature }}
           ACCESS_CODE: ${{ github.event.client_payload.access_code }}
+          BRANCH_NAME: ${{ github.event.client_payload.branch_name }}
         run: |
+          echo "Starting branch creation..."
+          echo "Email: $CANDIDATE_EMAIL"
+          echo "Feature: $FEATURE_NAME"
+          echo "Branch: $BRANCH_NAME"
+          
           # Configuration Git
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           
-          # Création de la branche
-          SAFE_EMAIL=$(echo "$CANDIDATE_EMAIL" | sed 's/@/-at-/g' | sed 's/\./-dot-/g')
-          BRANCH_NAME="correction/${FEATURE_NAME}/${SAFE_EMAIL}"
-          SOURCE_BRANCH="feature/task-tags"
-          
-          echo "Creating branch $BRANCH_NAME from $SOURCE_BRANCH"
-          
           # Récupérer toutes les branches
           git fetch origin
           
-          # Créer la nouvelle branche
-          git checkout -b "$BRANCH_NAME" "origin/$SOURCE_BRANCH"
+          # Créer la nouvelle branche depuis feature/task-tags
+          echo "Creating branch from feature/task-tags..."
+          git checkout -b "$BRANCH_NAME" "origin/feature/task-tags"
           
           # Créer le README
           cat > README-CORRECTION.md << EOF
@@ -70,3 +74,25 @@ jobs:
           git add README-CORRECTION.md
           git commit -m "docs: Add correction instructions"
           git push origin "$BRANCH_NAME"
+          
+          # Stocker le nom de la branche pour l'étape suivante
+          echo "CREATED_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Protect created branch
+        uses: octokit/request-action@v2.x
+        with:
+          route: PUT /repos/${{ github.repository }}/branches/${{ env.CREATED_BRANCH }}/protection
+          mediaType: '{"previews": ["luke-cage"]}'
+          required_status_checks: null
+          enforce_admins: true
+          required_pull_request_reviews: null
+          restrictions: null
+          allow_force_pushes: false
+          allow_deletions: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Debug final status
+        run: |
+          echo "Branch ${{ env.CREATED_BRANCH }} created and protected"
+          git branch -a
