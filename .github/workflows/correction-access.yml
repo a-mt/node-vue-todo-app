@@ -79,19 +79,40 @@ jobs:
           # Stocker le nom de la branche pour l'étape suivante
           echo "CREATED_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
 
-      - name: Protect created branch
-        uses: octokit/request-action@v2.x
-        with:
-          route: PUT /repos/${{ github.repository }}/branches/${{ env.CREATED_BRANCH }}/protection
-          mediaType: '{"previews": ["luke-cage"]}'
-          required_status_checks: null
-          enforce_admins: true
-          required_pull_request_reviews: null
-          restrictions: null
-          allow_force_pushes: false
-          allow_deletions: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Protect branch
+        run: |
+          echo "Protecting branch ${{ env.CREATED_BRANCH }}..."
+          curl -L \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/branches/${{ env.CREATED_BRANCH }}/protection" \
+            -d '{
+              "required_status_checks": null,
+              "enforce_admins": true,
+              "required_pull_request_reviews": null,
+              "restrictions": null,
+              "allow_force_pushes": false,
+              "allow_deletions": false,
+              "required_linear_history": true,
+              "allow_fork_syncing": false
+            }'
+
+      - name: Verify protection
+        run: |
+          echo "Verifying branch protection..."
+          PROTECTION_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/branches/${{ env.CREATED_BRANCH }}/protection")
+          
+          if [ "$PROTECTION_STATUS" = "200" ]; then
+            echo "Branch protection verified successfully!"
+          else
+            echo "Warning: Branch protection status code: $PROTECTION_STATUS"
+          fi
 
       - name: Debug final status
         run: |
