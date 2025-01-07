@@ -4,15 +4,15 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"
+      - "5001:5000"  # Permettre l'utilisation des ports 5000 ou 5001
     environment:
       - MONGO_URI=mongodb://mongo:27017/todos
-      - PORT=5000
+      - PORT=5000  # Port par défaut, sera ajusté dynamiquement si nécessaire
     networks:
       - app-network
     depends_on:
       - mongo
-    restart: always  # Ajout du restart
+    restart: always
 
   frontend:
     build: ./frontend
