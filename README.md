@@ -73,6 +73,7 @@ docker-compose up --build
 **Filtrage des tâches :**
 - Ajouter un champ de recherche pour filtrer les tâches par titre.
 - Implémenter des filtres pour afficher uniquement les tâches complétées ou en cours.
+![Todo App avec Tags](https://divertychallenge.silex-cloud.com/screenshots/todo-tags.png)
 
 **Gestion des priorités :**
 - Ajouter une fonctionnalité pour définir une priorité (ex. haute, moyenne, basse) pour chaque tâche.
