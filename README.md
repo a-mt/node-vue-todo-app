@@ -1,7 +1,7 @@
 # Todo App
 
 ## Description
-Une application Todo simple construite avec Vue.js, Express et MongoDB, déployée via Docker. Ce dépôt sert de base pour évaluer les compétences techniques des développeurs candidats. Les candidats sont invités à récupérer ce projet, à le faire fonctionner localement, et à y ajouter de nouvelles fonctionnalités.
+Une application Todo construite avec Vue.js, Express et MongoDB, déployée via Docker. Ce dépôt sert de base pour évaluer les compétences techniques des développeurs candidats. Les candidats sont invités à récupérer ce projet, à le faire fonctionner localement, et à y ajouter de nouvelles fonctionnalités.
 
 ## Prérequis
 - Docker
@@ -43,76 +43,56 @@ docker-compose up --build
 - Port : 27017
 - Volume persistant : `mongo-data`
 
-## Fonctionnalités de Base
-- Ajouter une tâche : Permet d'ajouter une nouvelle tâche avec un titre.
-- Lister les tâches : Affiche la liste des tâches existantes.
-- Marquer une tâche comme complétée : Checkbox pour indiquer qu'une tâche est terminée.
-- Supprimer une tâche : Bouton pour supprimer une tâche existante.
-- Réordonnancement des tâches : Glisser-déposer pour changer l'ordre des tâches.
+## Fonctionnalités Existantes
+- Ajouter une tâche
+- Lister les tâches
+- Marquer une tâche comme complétée
+- Supprimer une tâche
+- Réordonnancement des tâches (drag & drop)
 
-## Instructions pour les Candidats
+## Nouvelles Fonctionnalités à Implémenter
 
-### Étape 1 : Configurer votre Environnement
-
-1. Clonez ce dépôt dans votre propre compte GitHub ou en local.
-2. Installez les dépendances nécessaires :
-```bash
-cd frontend
-npm install
-cd ../backend
-npm install
-```
-3. Lancez l'application en mode développement :
-```bash
-docker-compose up --build
-```
-
-### Étape 2 : Ajout de Fonctionnalités
-
+### 1. Gestion des Tags
 #### Frontend
-**Filtrage des tâches :**
-- Ajouter un champ de recherche pour filtrer les tâches par titre.
-- Implémenter des filtres pour afficher uniquement les tâches complétées ou en cours.
-![Todo App avec Tags](https://divertychallenge.silex-cloud.com/screenshots/todo-tags.png)
-
-**Gestion des priorités :**
-- Ajouter une fonctionnalité pour définir une priorité (ex. haute, moyenne, basse) pour chaque tâche.
-- Permettre de trier les tâches par priorité.
-
-**Affichage amélioré :**
-- Ajouter des animations pour le drag and drop des tâches.
-- Améliorer l'UI avec des icônes ou des couleurs pour différencier les tâches selon leur état ou priorité.
+- Interface pour ajouter et gérer des tags personnalisés avec des couleurs
+- Assignation de plusieurs tags à une tâche
+- Affichage visuel des tags dans la liste des tâches
+- Système de filtrage des tâches par tag
 
 #### Backend
-**Pagination des tâches :**
-- Implémenter une API pour retourner les tâches par page (ex. 10 tâches par page).
-- Adapter le frontend pour consommer cette API.
+- Tables pour stocker les tags et leurs associations avec les tâches
+- Endpoints API pour la création/modification/suppression des tags
+- Gestion des associations tags-tâches
+- Optimisation des requêtes de tags
 
-**Authentification utilisateur :**
-- Ajouter une gestion des utilisateurs avec des rôles (ex. utilisateur simple, administrateur).
-- Utiliser JWT pour sécuriser les endpoints de l'API.
+### 2. Filtrage et Recherche
+#### Frontend
+- Champ de recherche pour filtrer les tâches par titre
+- Filtres pour tâches complétées/en cours
+- Interface réactive en temps réel
 
-**Sauvegarde automatique :**
-- Implémenter une API qui sauvegarde périodiquement l'état des tâches dans une collection d'archives.
+#### Backend
+- Endpoints de recherche et filtrage
+- Optimisation avec index
+- Pagination des résultats
 
-### Étape 3 : Documentation et Tests
+### 3. Gestion des Priorités
+#### Frontend
+- Interface pour définir les priorités (haute, moyenne, basse)
+- Tri des tâches par priorité
+- Indicateurs visuels de priorité
 
-**Documentation :**
-- Mettez à jour ce fichier README.md pour inclure les nouvelles fonctionnalités ajoutées.
-- Documentez les endpoints de l'API dans une section séparée.
-
-**Tests :**
-- Écrivez des tests unitaires ou d'intégration pour le backend (ex. Mocha, Jest).
-- Implémentez des tests End-to-End pour le frontend (ex. Cypress).
+#### Backend
+- Champ priorité dans le schéma des tâches
+- Endpoints de gestion des priorités
+- Tri par priorité côté serveur
 
 ## API Documentation
 
-### Liste des Endpoints Disponibles
+### Endpoints Existants
 
 #### GET /api/todos
-**Description :** Retourne toutes les tâches.
-
-**Réponse :**
+Retourne toutes les tâches
 ```json
 [
   {
@@ -120,28 +100,19 @@ docker-compose up --build
     "title": "Acheter du lait",
     "completed": false,
     "position": 1
-  },
-  {
-    "_id": "64b91d841aa2d933285b5671",
-    "title": "Terminer le projet",
-    "completed": true,
-    "position": 2
   }
 ]
 ```
 
 #### POST /api/todos
-**Description :** Ajoute une nouvelle tâche.
-
-**Body :**
+Crée une nouvelle tâche
 ```json
+// Request
 {
   "title": "Nouvelle tâche"
 }
-```
 
-**Réponse :**
-```json
+// Response
 {
   "_id": "64b91d841aa2d933285b5672",
   "title": "Nouvelle tâche",
@@ -151,17 +122,14 @@ docker-compose up --build
 ```
 
 #### PATCH /api/todos/:id
-**Description :** Met à jour une tâche existante.
-
-**Body (optionnel) :**
+Met à jour une tâche
 ```json
+// Request
 {
   "completed": true
 }
-```
 
-**Réponse :**
-```json
+// Response
 {
   "_id": "64b91d841aa2d933285b5672",
   "title": "Nouvelle tâche",
@@ -171,29 +139,55 @@ docker-compose up --build
 ```
 
 #### DELETE /api/todos/:id
-**Description :** Supprime une tâche existante.
-
-**Réponse :**
+Supprime une tâche
 ```json
 {
   "message": "Tâche supprimée avec succès"
 }
 ```
 
+### Nouveaux Endpoints à Implémenter
+
+#### Tags
+- `GET /api/tags` - Liste tous les tags
+- `POST /api/tags` - Crée un nouveau tag
+- `PATCH /api/tags/:id` - Modifie un tag
+- `DELETE /api/tags/:id` - Supprime un tag
+- `POST /api/todos/:id/tags` - Ajoute des tags à une tâche
+- `DELETE /api/todos/:id/tags` - Retire des tags d'une tâche
+
+#### Recherche et Filtrage
+- `GET /api/todos/search` - Recherche dans les tâches avec pagination
+- `GET /api/todos/filter` - Filtre les tâches par statut
+- `GET /api/todos/by-tag/:tagId` - Filtre les tâches par tag
+
+#### Priorités
+- `PATCH /api/todos/:id/priority` - Met à jour la priorité d'une tâche
+- `GET /api/todos/by-priority` - Liste les tâches triées par priorité
+
+## Documentation Requise
+- Documentation des nouvelles tables et relations
+- Description détaillée des nouveaux endpoints
+- Instructions d'installation mises à jour
+- Commentaires dans le code
+
 ## Critères d'Évaluation
-Vos modifications seront évaluées sur les critères suivants :
+1. **Fonctionnalité**
+   - Implémentation correcte des features demandées
+   - Performance et optimisation
 
-### Fonctionnalité
-- Les fonctionnalités ajoutées répondent aux consignes et fonctionnent correctement.
+2. **Qualité du Code**
+   - Structure et organisation
+   - Bonnes pratiques
+   - Lisibilité
 
-### Qualité du Code
-- Le code est bien structuré, lisible et respecte les bonnes pratiques.
+3. **Tests et Documentation**
+   - Tests unitaires et d'intégration
+   - Documentation claire et complète
 
-### Tests et Documentation
-- Les nouvelles fonctionnalités sont accompagnées de tests et documentées dans le README.md.
-
-### Créativité
-- Les candidats sont encouragés à proposer des fonctionnalités ou améliorations innovantes.
+4. **Créativité**
+   - Améliorations innovantes
+   - Solutions élégantes
 
 ## Contact
-Pour toute question ou assistance, veuillez contacter mathieu@silex-lab.com
+Pour toute question ou assistance, vous pouvez utiliser le formulaire de contact dans votre espace de travail.
