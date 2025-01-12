@@ -13,10 +13,27 @@ const TodoSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    priority: {
+        type: Number,
+        default: 1
+    },
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    tags: [{
+        _id: mongoose.ObjectId,
+        title: String,
+        color: String,
+    }],
 });
 
-module.exports = mongoose.model('Todo', TodoSchema);
+TodoSchema.index({'tags._id': 1});
+TodoSchema.index({
+    title: 'text'
+}, {
+    default_language: 'none',
+    caseSensitive: false,
+});
+
+module.exports = mongoose.model('Todo', TodoSchema)

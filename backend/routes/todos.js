@@ -14,6 +14,72 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET todos with a pagination, handling search, filter and sort
+router.get('/search', async (req, res) => {
+    const PAGE_SIZE = 10;
+    const page = Math.min(req.query.page || 1, 1);
+    const filter = {};
+
+    // Search by title
+    const search = req.query.search || '';
+    if (search) {
+        filter['$text'] = { $search: search };
+    }
+
+    // Filter by status
+    if ('completed' in req.query) {
+        filter['completed'] = !!req.query.completed;
+    }
+
+    // Sort by priority
+    const sort = {};
+    if (req.query['by-priority']) {
+        sort.priority = 1;
+    }
+    sort.position = 1;
+
+    try {
+        const count = await Todo.find(filter).count();
+
+        const todos = await (
+            Todo
+            .find(filter)
+            .sort(sort)
+            .skip(PAGE_SIZE*(page-1))
+            .limit(PAGE_SIZE)
+            .exec()
+        );
+        res.json({
+            data: todos,
+            meta: {
+                pagination: {
+                    page,
+                    per_page: PAGE_SIZE,
+                    total_count: count,
+                    page_count: Math.ceil(count / PAGE_SIZE)
+                },
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET all todos by tag
+router.get('/by-tag/:tagId', async (req, res) => {
+    try {
+        const todos = await (
+            Todo
+            .find({'tags._id': req.params.tagId})
+            .sort('priority', 'position')
+            .exec()
+        );
+        res.json(todos);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // GET one todo
 router.get('/:id', getTodo, (req, res) => {
     res.json(res.todo);
@@ -27,7 +93,9 @@ router.post('/', async (req, res) => {
 
         const todo = new Todo({
             title: req.body.title,
-            position: newPosition
+            priority: req.body.priority || 1,
+            position: newPosition,
+            tags: [],
         });
         const newTodo = await todo.save();
         res.status(201).json(newTodo);
@@ -43,6 +111,12 @@ router.patch('/:id', getTodo, async (req, res) => {
     }
     if (req.body.completed != null) {
         res.todo.completed = req.body.completed;
+    }
+    if (req.body.tags != null) {
+        res.todo.tags = req.body.tags;
+    }
+    if (req.body.priority != null) {
+        res.todo.priority = req.body.priority;
     }
     try {
         const updatedTodo = await res.todo.save();
