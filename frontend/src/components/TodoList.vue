@@ -15,7 +15,29 @@
       </button>
     </form>
 
-    <div ref="sortableList" class="space-y-2">
+    <form @submit.prevent="fetchTodos" class="flex mb-4">
+      <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+      <div class="relative">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+          </div>
+          <input
+            v-model="paramsSearch"
+            type="search"
+            class="block w-full px-4 py-2 ps-10 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Titre..."
+          />
+          <button
+            type="submit"
+            class="absolute text-xs end-2.5 bottom-1.5 rounded-lg px-4 py-2 bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Go
+          </button>
+      </div>
+    </form>
+
+    <div ref="sortableList" class="mt-8 space-y-2">
       <transition-group>
         <li
           v-for="todo in todos"
@@ -26,6 +48,10 @@
         </li>
       </transition-group>
     </div>
+
+    <div class="mt-8 flex justify-center" v-if="pagination && pagination.pageCount > 1">
+      <Pagination :page="pagination.page" :pageCount="pagination.pageCount" :gotoPage="gotoPage" />
+    </div>
   </div>
 </template>
 
@@ -33,6 +59,7 @@
   import axios from 'axios';
   import Sortable from 'sortablejs';
   import Todo from './Todo.vue';
+  import Pagination from './Pagination.vue';
   import NotificationMixin from '../mixins/NotificationMixin.js';
 
   export default {
@@ -42,6 +69,7 @@
     ],
     components: {
       Todo,
+      Pagination,
     },
     data() {
       return {
@@ -49,6 +77,9 @@
         tags: [],
         pagination: null,
         newTodo: '',
+        paramsSearch: '',
+        paramsPage: null,
+
       };
     },
     provide() {
@@ -59,11 +90,25 @@
       }
     },
     methods: {
+      gotoPage(i) {
+        if (i == this.paramsSearch) {
+          return;
+        }
+        this.paramsPage = i;
+        this.fetchTodos();
+      },
       async fetchTodos() {
         try {
-          const response = await axios.get('/api/todos/search');
+          const response = await axios.get('/api/todos/search', {
+            params: {
+              q: this.paramsSearch,
+              page: this.paramsPage,
+            }
+          });
           this.todos = response.data.data;
           this.pagination = response.data.meta?.pagination;
+          this.paramsPage = this.pagination.page || 1;
+
         } catch (error) {
           console.error(error);
           this.showSuccess('Erreur lors de la récupération des tâches.');

@@ -37,7 +37,7 @@
     <div class="flex">
       <button
         @click="this.showTagsDialog = true"
-        class="text-grey-500 hover:text-grey-700 focus:outline-none pr-2"
+        class="text-grey-500 hover:text-grey-700 mr-2"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
           viewBox="0 0 24 24" stroke="currentColor">
@@ -49,7 +49,7 @@
 
       <button
         @click="deleteTodo(todo._id)"
-        class="text-red-500 hover:text-red-700 focus:outline-none"
+        class="text-red-500 hover:text-red-700"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
           viewBox="0 0 24 24" stroke="currentColor">
@@ -104,9 +104,6 @@
       }
     },
     methods: {
-      alert(msg) {
-        window.alert(msg)
-      },
       async updateTodo(todo) {
         try {
           await axios.patch(`/api/todos/${todo._id}`, { completed: todo.completed });

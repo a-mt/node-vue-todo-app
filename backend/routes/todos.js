@@ -17,13 +17,13 @@ router.get('/', async (req, res) => {
 // GET todos with a pagination, handling search, filter and sort
 router.get('/search', async (req, res) => {
     const PAGE_SIZE = 10;
-    const page = Math.min(req.query.page || 1, 1);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
     const filter = {};
 
     // Search by title
-    const search = req.query.search || '';
-    if (search) {
-        filter['$text'] = { $search: search };
+    const q = req.query.q || '';
+    if (q) {
+        filter['$text'] = { $search: q };
     }
 
     // Filter by status
@@ -54,9 +54,9 @@ router.get('/search', async (req, res) => {
             meta: {
                 pagination: {
                     page,
-                    per_page: PAGE_SIZE,
-                    total_count: count,
-                    page_count: Math.ceil(count / PAGE_SIZE)
+                    perPage: PAGE_SIZE,
+                    totalCount: count,
+                    pageCount: Math.ceil(count / PAGE_SIZE)
                 },
             }
         });
