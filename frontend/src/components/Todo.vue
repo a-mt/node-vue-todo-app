@@ -70,17 +70,18 @@
   </ul>
 
   <div v-if="showTagsDialog" class="relative">
-    <div class="fixed inset-0 bg-black/[.06]" @click="showTagsDialog = false">
+    <div class="fixed inset-0 bg-black/[.06]" @click="closeTagDialog()">
       <div class="bg-black opacity-50"></div>
     </div>
     <div class="bg-white p-6 rounded shadow-lg absolute z-50" @click.stop="">
       <div class="-mt-4 mb-2 text-right">
-        <button class="text-xs text-gray-500" @click="showTagsDialog = false">Fermer</button>
+        <button class="text-xs text-gray-500" @click="closeTagDialog()">
+          Fermer
+        </button>
       </div>
-      <TagSelect :todo="todo" :toggleTag="toggleTag" />
+      <TagSelect :todo="todo" :addOrRemoveTag="addOrRemoveTag" @deletedTag="deletedTag" />
     </div>
   </div>
-
 </template>
 
 <script>
@@ -101,12 +102,23 @@
       todo: Object,
       deleteTodo: Function,
     },
+    inject: ['refreshTodos'],
+    emits: ['deletedTag'],
     data() {
       return {
         showTagsDialog: false,
+        shouldRefreshTodos: false,
       }
     },
     methods: {
+      deletedTag(id) {
+        this.shouldRefreshTodos = true;
+        this.$emit('deletedTag', id);
+      },
+      closeTagDialog() {
+        this.showTagsDialog = false;
+        this.shouldRefreshTodos && this.refreshTodos();
+      },
       async updateTodo(todo) {
         try {
           await axios.patch(`/api/todos/${todo._id}`, { completed: todo.completed });
@@ -116,18 +128,17 @@
           this.showError('Erreur lors de la mise à jour de la tâche.');
         }
       },
-      async toggleTag(tag) {
-        const ntags = this.todo.tags.length;
-        const tags = this.todo.tags.filter(item => item._id != tag._id);
+      async addOrRemoveTag(tag) {
+        const tags = this.todo.tags;
+        const idx = tags.findIndex(item => item._id == tag._id);
 
-        if (ntags != tags.length) {
-          this.todo.tags = tags;
+        if (idx != -1) {
+          tags.splice(idx, 1);
         } else {
-          this.todo.tags = [...this.todo.tags, tag];
+          tags.push(tag);
         }
-
         try {
-          await axios.patch(`/api/todos/${this.todo._id}`, { tags: this.todo.tags });
+          await axios.patch(`/api/todos/${this.todo._id}`, { tags: tags });
           this.showSuccess('Tâche mise à jour.');
         } catch (error) {
           console.error(error);

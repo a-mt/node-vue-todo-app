@@ -31,6 +31,11 @@ router.get('/search', async (req, res) => {
         filter['completed'] = !!parseInt(req.query.completed);
     }
 
+    // Filter by tag
+    if (req.query.tag) {
+        filter['tags._id'] = req.query.tag;
+    }
+
     // Sort by priority
     const sort = {};
     if (req.query['by-priority']) {

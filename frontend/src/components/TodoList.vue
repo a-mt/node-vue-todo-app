@@ -57,9 +57,28 @@
           Filtrer par statut
         </label>
         <select name="paramsCompleted" class="text-sm grow p-2 pt-4" v-model="paramsCompleted" @change="fetchTodos">
-          <option value="">Tout</option>
+          <option value="">--</option>
           <option value="1">Complété</option>
           <option value="0">Non complété</option>
+        </select>
+      </div>
+
+      <!-- Tags -->
+      <div class="flex flex border border-gray-300 border-t-0 rounded-b-md relative">
+        <label class="absolute h-4 text-xs p-1 pl-2 text-gray-400" for="paramsCompleted">
+          Filtrer par tag
+        </label>
+        <select name="paramsTag" class="text-sm grow p-2 pt-4" v-model="paramsTag" @change="fetchTodos">
+          <option value="">--</option>
+          <transition-group>
+            <option
+              v-for="tag in tags"
+              :key="tag._id"
+              :value="tag._id"
+            >
+              {{ tag.title }}
+            </option>
+          </transition-group>
         </select>
       </div>
     </div>
@@ -72,7 +91,7 @@
           :key="todo._id"
           class="flex flex-col p-2 bg-gray-50 rounded-md shadow-sm"
         >
-          <Todo :todo="todo" :deleteTodo="deleteTodo" />
+          <Todo :todo="todo" :deleteTodo="deleteTodo" @deletedTag="deletedTag" />
         </li>
       </transition-group>
     </div>
@@ -107,9 +126,9 @@
         pagination: null,
         newTodo: '',
         paramsSearch: '',
-        paramsPage: null,
+        paramsPage: '',
         paramsCompleted: '',
-
+        paramsTag: '',
       };
     },
     provide() {
@@ -117,23 +136,31 @@
         getTags: () => {
           return this.tags;
         },
+        refreshTodos: () => {
+          this.fetchTodos(this.paramsPage);
+        },
       }
     },
     methods: {
+      deletedTag(id) {
+        if (id == this.paramsTag) {
+          this.paramsTag = '';
+        }
+      },
       gotoPage(i) {
         if (i == this.paramsSearch) {
           return;
         }
-        this.paramsPage = i;
-        this.fetchTodos();
+        this.fetchTodos(i);
       },
-      async fetchTodos() {
+      async fetchTodos(page=1) {
         try {
           const response = await axios.get('/api/todos/search', {
             params: {
               q: this.paramsSearch,
-              page: this.paramsPage,
+              page,
               completed: this.paramsCompleted,
+              tag: this.paramsTag,
             }
           });
           this.todos = response.data.data;
@@ -169,7 +196,11 @@
       async deleteTodo(id) {
         try {
           await axios.delete(`/api/todos/${id}`);
-          this.todos = this.todos.filter(todo => todo._id !== id);
+
+          const idx = this.todos.findIndex(item => item._id == id);
+          if (idx != -1) {
+            this.todos.splice(idx, 1);
+          }
           this.showSuccess('Tâche supprimée.');
         } catch (error) {
           console.error(error);
@@ -179,10 +210,11 @@
       async onDragEnd(event) {
         const { oldIndex, newIndex } = event;
 
-        const todos = [...this.todos];
-        todos.splice(newIndex, 0, ...todos.splice(oldIndex, 1));
-        this.todos = todos;
-
+        this.todos.splice(
+          newIndex,
+          0,
+          ...this.todos.splice(oldIndex, 1),
+        );
         try {
           await axios.put('/api/todos/reorder', { todos: this.todos });
           this.showSuccess('Ordre des tâches mis à jour.');

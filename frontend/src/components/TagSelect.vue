@@ -30,7 +30,7 @@
         class="row flex items-center justify-between p-1 shadow-sm"
         :key="tag._id"
       >
-        <button class="flex w-full" @click="toggleTag(tag)">
+        <button class="flex w-full" @click="addOrRemoveTag(tag)">
           <span class="text-xs font-medium px-2.5 py-0.5 rounded-full"
                 :style="{'background-color': tag.color, 'color': tag.isLightColor ? 'black': 'white'}">
             {{ tag.title }}
@@ -78,7 +78,7 @@ export default {
   },
   props: {
     todo: Object,
-    toggleTag: Function,
+    addOrRemoveTag: Function,
   },
   data() {
     return {
@@ -88,6 +88,7 @@ export default {
     };
   },
   inject: ['getTags'],
+  emits: ['deletedTag'],
   methods: {
     async addTag() {
       if (this.newTag.trim() === '') return;
@@ -96,14 +97,13 @@ export default {
           title: this.newTag,
           color: this.newTagColor,
         });
-
         const tag = response.data;
         this.tags.push(tag);
-        this.showSuccess('Tag ajoutée avec succès.');
 
         this.newTag = '';
         this.newTagColor = DEFAULT_COLOR;
-        this.toggleTag(tag);
+        this.addOrRemoveTag(tag);
+        this.showSuccess('Tag ajoutée avec succès.');
 
       } catch (error) {
         console.error(error);
@@ -113,9 +113,15 @@ export default {
     async deleteTag(id) {
       try {
         await axios.delete(`/api/tags/${id}`);
-        this.tags = this.tags.filter(todo => todo._id !== id);
-        console.log(this.tags, id);
+
+        const idx = this.tags.findIndex(item => item._id == id);
+        // this.addOrRemoveTag(this.tags[idx]);
+        this.tags.splice(idx, 1);
+
+        // remove from all todos in the current page
+        this.$emit('deletedTag', id);
         this.showSuccess('Tag supprimé.');
+
       } catch (error) {
         console.error(error);
         this.showError('Erreur lors de la suppression de la tâche.');
