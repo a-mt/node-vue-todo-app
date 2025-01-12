@@ -37,11 +37,28 @@ router.get('/search', async (req, res) => {
     }
 
     // Sort by priority
-    const sort = {};
-    if (req.query['by-priority']) {
-        sort.priority = 1;
+    const sort = [];
+    if (req.query.sort) {
+        let paramSort = req.query.sort;
+        let asc = true;
+
+        if (paramSort.startsWith('-')) {
+            asc = false;
+            paramSort = paramSort.substr(1);
+        }
+        // Only authorize sort on scalar attributes
+        if (Todo.schema.tree[paramSort]?.type) {
+            sort.push([paramSort, asc ? 1: -1]);
+        } else {
+            return res.status(400).json({ message: `${paramSort} is not a valid sort` });
+        }
+        if (paramSort != 'position') {
+            sort.push(['position', 1]);
+        }
+
+    } else {
+        sort.push(['position', 1]);
     }
-    sort.position = 1;
 
     try {
         const count = await Todo.find(filter).count();

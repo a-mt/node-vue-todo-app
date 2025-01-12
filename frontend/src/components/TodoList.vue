@@ -6,7 +6,7 @@
         v-model="newTodo"
         type="text"
         placeholder="Ajouter une tâche"
-        class="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="grow w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button
         type="submit"
@@ -40,7 +40,7 @@
           <input
             v-model="paramsSearch"
             type="search"
-            class="grow block w-full px-4 py-2 ps-10 border border-gray-300 rounded-t-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="grow w-full px-4 py-2 ps-10 border border-gray-300 rounded-t-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Rechercher un titre"
           />
           <button
@@ -81,6 +81,28 @@
           </transition-group>
         </select>
       </div>
+
+      <!-- Sort -->
+      <div class="flex flex border border-gray-300 border-t-0 rounded-b-md relative">
+        <label class="absolute h-4 text-xs p-1 pl-2 text-gray-400" for="paramsSort">
+          Trier par
+        </label>
+        <select name="paramsSort" class="text-sm grow p-2 pt-4" v-model="paramsSort" @change="fetchTodos">
+          <option value="">
+            --
+          </option>
+          <option value="-position">
+            Sens inverse
+          </option>
+          <option value="-priority">
+            Priorité: haute à basse
+          </option>
+          <option value="priority">
+            Priorité: basse à haute
+          </option>
+        </select>
+      </div>
+
     </div>
 
     <!-- List of todos -->
@@ -129,6 +151,7 @@
         paramsPage: '',
         paramsCompleted: '',
         paramsTag: '',
+        paramsSort: '',
       };
     },
     provide() {
@@ -137,7 +160,7 @@
           return this.tags;
         },
         refreshTodos: () => {
-          this.fetchTodos(this.paramsPage);
+          this.fetchTodos(null, this.paramsPage);
         },
       }
     },
@@ -151,9 +174,9 @@
         if (i == this.paramsSearch) {
           return;
         }
-        this.fetchTodos(i);
+        this.fetchTodos(null, i);
       },
-      async fetchTodos(page=1) {
+      async fetchTodos(event, page=1) {
         try {
           const response = await axios.get('/api/todos/search', {
             params: {
@@ -161,6 +184,7 @@
               page,
               completed: this.paramsCompleted,
               tag: this.paramsTag,
+              sort: this.paramsSort,
             }
           });
           this.todos = response.data.data;

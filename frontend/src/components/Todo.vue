@@ -15,7 +15,7 @@
       <input
         type="checkbox"
         v-model="todo.completed"
-        @change="updateTodo(todo)"
+        @change="updateTodo()"
         class="form-checkbox h-5 w-5 shrink-0 text-blue-600"
       />
 
@@ -34,10 +34,20 @@
     </div>
 
     <!-- Action buttons -->
-    <div class="flex">
+    <div class="flex items-center">
+
+      <!-- Set priority -->
       <button
-        @click="this.showTagsDialog = true"
-        class="text-grey-500 hover:text-grey-700 mr-2"
+        @click="showPriorityDialog = true"
+        class="w-5 h-5 text-gray-500 hover:text-gray-700 bg-gray-200 rounded text-sm text-center mr-2"
+      >
+        {{ todo.priority }}
+      </button>
+
+      <!-- Set tags -->
+      <button
+        @click="showTagsDialog = true"
+        class="mr-2"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
           viewBox="0 0 24 24" stroke="currentColor">
@@ -47,6 +57,7 @@
         </svg>
       </button>
 
+      <!-- Delete -->
       <button
         @click="deleteTodo(todo._id)"
         class="text-red-500 hover:text-red-700"
@@ -69,11 +80,29 @@
     </li>
   </ul>
 
+  <!-- Associate priority -->
+  <div v-if="showPriorityDialog" class="relative">
+    <div class="fixed inset-0 bg-black/[.06]" @click="showPriorityDialog = false">
+      <div class="bg-black opacity-50"></div>
+    </div>
+    <div class="flex flex-col items-start py-1 px-2 space-y-1 text-sm bg-white rounded shadow-lg absolute z-50 right-0" @click.stop="">
+      <button
+        v-for="({value, title}) in priorities"
+        class="flex text-sm px-1 h-5 rounded text-center text-gray-500 hover:bg-gray-200"
+        :class="{'bg-gray-200': value == todo.priority}"
+        @click="setPriority(value)"
+      >
+        {{ value }}: {{ title }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Associate tags -->
   <div v-if="showTagsDialog" class="relative">
     <div class="fixed inset-0 bg-black/[.06]" @click="closeTagDialog()">
       <div class="bg-black opacity-50"></div>
     </div>
-    <div class="bg-white p-6 rounded shadow-lg absolute z-50" @click.stop="">
+    <div class="bg-white p-6 rounded shadow-lg absolute z-50 right-0" @click.stop="">
       <div class="-mt-4 mb-2 text-right">
         <button class="text-xs text-gray-500" @click="closeTagDialog()">
           Fermer
@@ -107,7 +136,13 @@
     data() {
       return {
         showTagsDialog: false,
+        showPriorityDialog: false,
         shouldRefreshTodos: false,
+        priorities: [
+          {value: 3, title: 'Haute priorité'},
+          {value: 2, title: 'Moyenne priorité'},
+          {value: 1, title: 'Basse priorité'},
+        ],
       }
     },
     methods: {
@@ -119,9 +154,20 @@
         this.showTagsDialog = false;
         this.shouldRefreshTodos && this.refreshTodos();
       },
-      async updateTodo(todo) {
+      setPriority(priority) {
+        this.showPriorityDialog = false;
+        if (priority == this.todo.priority) {
+          return;
+        }
+        this.todo.priority = priority;
+        this.updateTodo();
+      },
+      async updateTodo() {
         try {
-          await axios.patch(`/api/todos/${todo._id}`, { completed: todo.completed });
+          await axios.patch(`/api/todos/${this.todo._id}`, {
+            completed: this.todo.completed,
+            priority: this.todo.priority,
+          });
           this.showSuccess('Tâche mise à jour.');
         } catch (error) {
           console.error(error);
