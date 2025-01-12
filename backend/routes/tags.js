@@ -4,6 +4,8 @@ const express = require('express');
 const router = express.Router();
 const Tag = require('../models/Tag');
 const Todo = require('../models/Todo');
+const isLightColor = require('../utils/is-light-color');
+
 
 // GET all tags
 router.get('/', async (req, res) => {
@@ -26,6 +28,7 @@ router.post('/', async (req, res) => {
         const tag = new Tag({
             title: req.body.title,
             color: req.body.color,
+            isLightColor: isLightColor(req.body.color),
         });
         const newTag = await tag.save();
         res.status(201).json(newTag);
@@ -41,6 +44,7 @@ router.patch('/:id', getTag, async (req, res) => {
     }
     if (req.body.color != null) {
         res.tag.color = req.body.color;
+        res.tag.isLightColor = isLightColor(req.body.color);
     }
     try {
         const updatedTag = await res.tag.save();

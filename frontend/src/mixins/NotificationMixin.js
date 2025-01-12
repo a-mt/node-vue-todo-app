@@ -13,6 +13,12 @@ export default {
       setTimeout(() => {
         this.notification = '';
       }, 3000);
-    }
+    },
+    showError(msg) {
+      this.showNotification(msg, 'bg-red-100 text-red-700');
+    },
+    showSuccess(msg) {
+      this.showNotification(msg, 'bg-green-100 text-green-700');
+    },
   },
 };

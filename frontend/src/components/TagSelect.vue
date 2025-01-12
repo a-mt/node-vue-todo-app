@@ -1,11 +1,18 @@
 <template>
-  <form @submit.prevent="addTag" class="flex mb-4">
+  <form @submit.prevent="addTag" class="flex items-center mb-4">
+
+    <!-- Input -->
     <input
       v-model="newTag"
       type="text"
       placeholder="Ajouter un tag"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
     />
+
+    <!-- Color picker -->
+    <ColorPicker v-model="newTagColor" class="ml-2" />
+
+    <!-- Submit -->
     <button
       type="submit"
       class="text-grey-500 hover:text-grey-700 focus:outline-none ml-2"
@@ -15,27 +22,38 @@
       </svg>
     </button>
   </form>
-  {{ this.todo && this.todo.title }}
 
-  <ul>
+  <ul class="max-h-60 overflow-auto">
     <transition-group>
       <li
         v-for="tag in this.tags"
-        class="flex items-center p-2 shadow-sm"
+        class="row flex items-center justify-between p-1 shadow-sm"
         :key="tag._id"
       >
-        <div class="h-4 w-4 mr-2 rounded-full dark:ring-1 dark:ring-inset dark:ring-white/10"
-              :style="{'background-color': tag.color}"></div>
-
         <button class="flex w-full" @click="toggleTag(tag)">
-          <span>
+          <span class="text-xs font-medium px-2.5 py-0.5 rounded-full"
+                :style="{'background-color': tag.color, 'color': tag.isLightColor ? 'black': 'white'}">
             {{ tag.title }}
           </span>
+
+          <!-- Is selected -->
           <span v-if="todo.tags.filter(item => item._id == tag._id).length > 0" class="ml-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" class="h-4 w-4 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" class="h-4 w-4 text-gray-400">
               <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 7l3 3 7-7"/>
             </svg>
           </span>
+        </button>
+
+        <!-- Delete -->
+        <button
+          @click="deleteTag(tag._id)"
+          class="hidden mr-2 text-red-500 hover:text-red-700 focus:outline-none"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </li>
     </transition-group>
@@ -45,14 +63,19 @@
 <script>
 import axios from 'axios';
 import NotificationMixin from '../mixins/NotificationMixin.js';
+import ColorPicker from './ColorPicker.vue';
+import { ref } from 'vue';
 
-const DEFAULT_COLOR = 'grey';
+const DEFAULT_COLOR = 'rgb(91, 74, 233)';
 
 export default {
   name: 'TagSelect',
   mixins: [
     NotificationMixin,
   ],
+  components: {
+    ColorPicker,
+  },
   props: {
     todo: Object,
     toggleTag: Function,
@@ -60,9 +83,8 @@ export default {
   data() {
     return {
       tags: [],
-      selectedTags: {},
       newTag: '',
-      newTagColor: DEFAULT_COLOR,
+      newTagColor: ref(DEFAULT_COLOR),
     };
   },
   inject: ['getTags'],
@@ -77,7 +99,7 @@ export default {
 
         const tag = response.data;
         this.tags.push(tag);
-        this.showNotification('Tag ajoutée avec succès.', 'bg-green-100 text-green-700');
+        this.showSuccess('Tag ajoutée avec succès.');
 
         this.newTag = '';
         this.newTagColor = DEFAULT_COLOR;
@@ -85,7 +107,17 @@ export default {
 
       } catch (error) {
         console.error(error);
-        this.showNotification('Erreur lors de l\'ajout du tag.', 'bg-red-100 text-red-700');
+        this.showError('Erreur lors de l\'ajout du tag.');
+      }
+    },
+    async deleteTag(id) {
+      try {
+        await axios.delete(`/api/tags/${id}`);
+        this.tags = this.tags.filter(todo => todo._id !== id);
+        this.showSuccess('Tag supprimé.');
+      } catch (error) {
+        console.error(error);
+        this.showError('Erreur lors de la suppression de la tâche.');
       }
     },
   },
@@ -94,3 +126,9 @@ export default {
   }
 };
 </script>
+
+<style>
+  .row:hover button.hidden {
+    display: block;
+  }
+</style>

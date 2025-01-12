@@ -62,21 +62,19 @@
 
   <ul class="flex flex-wrap ml-4 pl-10 mt-1">
     <li v-for="tag in this.todo.tags">
-        <span class="text-xs rounded-full font-medium me-2 px-2.5 py-0.5 rounded border"
-              :class="['bg-blue-100', 'text-blue-800', 'dark:bg-blue-900', 'dark:text-blue-30']">
-            {{ tag._id }} {{ tag.color }} {{ tag.title }}
+        <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800"
+              :style="{'backgroundColor': tag.color, 'color': tag.isLightColor ? 'black': 'white'}">
+            {{ tag.title }}
         </span>
     </li>
   </ul>
 
-  <div v-if="showTagsDialog">
-    <div class="fixed inset-0 z-50" @click="showTagsDialog = null">
+  <div v-if="showTagsDialog" class="relative">
+    <div class="fixed inset-0 bg-black/[.06]" @click="showTagsDialog = false">
       <div class="bg-black opacity-50"></div>
-      <div class="flex justify-center">
-        <div class="bg-white p-6 rounded shadow-lg" @click.stop="">
-          <TagSelect :todo="todo" :toggleTag="toggleTag" />
-        </div>
-      </div>
+    </div>
+    <div class="bg-white p-6 rounded shadow-lg absolute z-50" @click.stop="">
+      <TagSelect :todo="todo" :toggleTag="toggleTag" />
     </div>
   </div>
 
@@ -106,13 +104,16 @@
       }
     },
     methods: {
+      alert(msg) {
+        window.alert(msg)
+      },
       async updateTodo(todo) {
         try {
           await axios.patch(`/api/todos/${todo._id}`, { completed: todo.completed });
-          this.showNotification('Tâche mise à jour.', 'bg-green-100 text-green-700');
+          this.showSuccess('Tâche mise à jour.');
         } catch (error) {
           console.error(error);
-          this.showNotification('Erreur lors de la mise à jour de la tâche.', 'bg-red-100 text-red-700');
+          this.showError('Erreur lors de la mise à jour de la tâche.');
         }
       },
       async toggleTag(tag) {
@@ -127,10 +128,10 @@
 
         try {
           await axios.patch(`/api/todos/${this.todo._id}`, { tags: this.todo.tags });
-          this.showNotification('Tâche mise à jour.', 'bg-green-100 text-green-700');
+          this.showSuccess('Tâche mise à jour.');
         } catch (error) {
           console.error(error);
-          this.showNotification('Erreur lors de la mise à jour de la tâche.', 'bg-red-100 text-red-700');
+          this.showError('Erreur lors de la mise à jour de la tâche.');
         }
       },
     },

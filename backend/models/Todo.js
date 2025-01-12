@@ -25,6 +25,7 @@ const TodoSchema = new mongoose.Schema({
         _id: mongoose.ObjectId,
         title: String,
         color: String,
+        isLightColor: Boolean,
     }],
 });
 

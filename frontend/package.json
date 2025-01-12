@@ -7,6 +7,7 @@
         "build": "vue-cli-service build"
     },
     "dependencies": {
+        "@cyhnkckali/vue3-color-picker": "^2.0.7",
         "axios": "^1.4.0",
         "core-js": "^3.6.5",
         "sortablejs": "^1.15.6",

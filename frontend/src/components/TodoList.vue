@@ -66,7 +66,7 @@
           this.pagination = response.data.meta?.pagination;
         } catch (error) {
           console.error(error);
-          this.showNotification('Erreur lors de la récupération des tâches.', 'bg-red-100 text-red-700');
+          this.showSuccess('Erreur lors de la récupération des tâches.');
         }
       },
       async fetchTags() {
@@ -75,7 +75,7 @@
           this.tags = response.data;
         } catch (error) {
           console.error(error);
-          this.showNotification('Erreur lors de la récupération des tags.', 'bg-red-100 text-red-700');
+          this.showError('Erreur lors de la récupération des tags.');
         }
       },
       async addTodo() {
@@ -84,20 +84,20 @@
           const response = await axios.post('/api/todos', { title: this.newTodo });
           this.todos.push(response.data);
           this.newTodo = '';
-          this.showNotification('Tâche ajoutée avec succès.', 'bg-green-100 text-green-700');
+          this.showSuccess('Tâche ajoutée avec succès.');
         } catch (error) {
           console.error(error);
-          this.showNotification('Erreur lors de l\'ajout de la tâche.', 'bg-red-100 text-red-700');
+          this.showError('Erreur lors de l\'ajout de la tâche.');
         }
       },
       async deleteTodo(id) {
         try {
           await axios.delete(`/api/todos/${id}`);
           this.todos = this.todos.filter(todo => todo._id !== id);
-          this.showNotification('Tâche supprimée.', 'bg-green-100 text-green-700');
+          this.showSuccess('Tâche supprimée.');
         } catch (error) {
           console.error(error);
-          this.showNotification('Erreur lors de la suppression de la tâche.', 'bg-red-100 text-red-700');
+          this.showError('Erreur lors de la suppression de la tâche.');
         }
       },
       async onDragEnd(event) {
@@ -109,10 +109,10 @@
 
         try {
           await axios.put('/api/todos/reorder', { todos: this.todos });
-          this.showNotification('Ordre des tâches mis à jour.', 'bg-green-100 text-green-700');
+          this.showSuccess('Ordre des tâches mis à jour.');
         } catch (error) {
           console.error('Error updating order:', error);
-          this.showNotification('Erreur lors de la mise à jour de l\'ordre.', 'bg-red-100 text-red-700');
+          this.showError('Erreur lors de la mise à jour de l\'ordre.');
         }
       },
     },

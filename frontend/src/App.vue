@@ -14,8 +14,15 @@ export default {
   name: 'App',
   components: {
     TodoList
+  },
+  mounted () {
+    document.body.classList.add('bg-gray-100');
+  },
+  destroyed () {
+    document.body.classList.remove('bg-gray-100');
   }
 };
+
 </script>
 
 <style>
