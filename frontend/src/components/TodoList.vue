@@ -112,14 +112,20 @@
           v-for="todo in todos"
           :key="todo._id"
           class="flex flex-col p-2 bg-gray-50 rounded-md shadow-sm"
+          :class="{'border border-gray-300 border-dashed': todo.isOutsideOrder}"
         >
-          <Todo :todo="todo" :deleteTodo="deleteTodo" @deletedTag="deletedTag" />
+          <Todo
+            :todo="todo"
+            :deleteTodo="deleteTodo"
+            :hideReorder="hideReorder"
+            @deletedTag="deletedTag"
+          />
         </li>
       </transition-group>
     </div>
 
     <!-- Pagination -->
-    <div class="mt-8 flex justify-center" v-if="pagination && pagination.pageCount > 1">
+    <div class="mt-8 flex justify-center" v-if="pagination && pagination.totalCount > 0">
       <Pagination :page="pagination.page" :pageCount="pagination.pageCount" :gotoPage="gotoPage" />
     </div>
   </div>
@@ -152,6 +158,7 @@
         paramsCompleted: '',
         paramsTag: '',
         paramsSort: '',
+        hideReorder: false,
       };
     },
     provide() {
@@ -171,9 +178,6 @@
         }
       },
       gotoPage(i) {
-        if (i == this.paramsSearch) {
-          return;
-        }
         this.fetchTodos(null, i);
       },
       async fetchTodos(event, page=1) {
@@ -189,7 +193,8 @@
           });
           this.todos = response.data.data;
           this.pagination = response.data.meta?.pagination;
-          this.paramsPage = this.pagination.page || 1;
+          this.paramsPage = this.pagination?.page || 1;
+          this.hideReorder = this.paramsSort != '';
 
         } catch (error) {
           console.error(error);
@@ -209,7 +214,13 @@
         if (this.newTodo.trim() === '') return;
         try {
           const response = await axios.post('/api/todos', { title: this.newTodo });
-          this.todos.push(response.data);
+          const todo = response.data;
+
+          if (this.paramsSort != '' || this.pagination) {
+            todo.isOutsideOrder = true;
+            this.hideReorder = true;
+          }
+          this.todos.push(todo);
           this.newTodo = '';
           this.showSuccess('Tâche ajoutée avec succès.');
         } catch (error) {
@@ -224,6 +235,9 @@
           const idx = this.todos.findIndex(item => item._id == id);
           if (idx != -1) {
             this.todos.splice(idx, 1);
+          }
+          if (!this.todos.length) {
+            this.gotoPage(this.paramsPage);
           }
           this.showSuccess('Tâche supprimée.');
         } catch (error) {
@@ -240,7 +254,10 @@
           ...this.todos.splice(oldIndex, 1),
         );
         try {
-          await axios.put('/api/todos/reorder', { todos: this.todos });
+          await axios.put('/api/todos/reorder', {
+            todos: this.todos,
+            positionOffset: this.pagination?.offset,
+          });
           this.showSuccess('Ordre des tâches mis à jour.');
         } catch (error) {
           console.error('Error updating order:', error);

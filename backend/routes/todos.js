@@ -17,7 +17,6 @@ router.get('/', async (req, res) => {
 // GET todos with a pagination, handling search, filter and sort
 router.get('/search', async (req, res) => {
     const PAGE_SIZE = 10;
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
     const filter = {};
 
     // Search by title
@@ -61,24 +60,36 @@ router.get('/search', async (req, res) => {
     }
 
     try {
+        // Handle pagination
         const count = await Todo.find(filter).count();
+        const pageCount = count ? Math.ceil(count / PAGE_SIZE) : 0;
 
-        const todos = await (
-            Todo
-            .find(filter)
-            .sort(sort)
-            .skip(PAGE_SIZE*(page-1))
-            .limit(PAGE_SIZE)
-            .exec()
-        );
+        let page = Math.max(parseInt(req.query.page) || 1, 1);
+        if (page > pageCount) {
+            page = pageCount;
+        }
+        let offset = PAGE_SIZE*(page-1);
+        let todos = [];
+
+        if (count) {
+            todos = await (
+                Todo
+                .find(filter)
+                .sort(sort)
+                .skip(offset)
+                .limit(PAGE_SIZE)
+                .exec()
+            );
+        }
         res.json({
             data: todos,
             meta: {
                 pagination: {
                     page,
+                    offset,
                     perPage: PAGE_SIZE,
                     totalCount: count,
-                    pageCount: Math.ceil(count / PAGE_SIZE)
+                    pageCount,
                 },
             }
         });
@@ -169,6 +180,7 @@ router.delete('/:id', getTodo, async (req, res) => {
 // REORDER todos
 router.put('/reorder', async (req, res) => {
     const { todos } = req.body; // Array de todos avec les nouvelles positions
+    const offset = req.body.positionOffset || 0;
 
     if (!Array.isArray(todos)) {
         return res.status(400).json({ message: 'Invalid data format' });
@@ -178,7 +190,7 @@ router.put('/reorder', async (req, res) => {
         const bulkOps = todos.map((todo, index) => ({
             updateOne: {
                 filter: { _id: todo._id },
-                update: { position: index + 1 }
+                update: { position: offset + index + 1 },
             }
         }));
 

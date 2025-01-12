@@ -115,7 +115,6 @@ export default {
         await axios.delete(`/api/tags/${id}`);
 
         const idx = this.tags.findIndex(item => item._id == id);
-        // this.addOrRemoveTag(this.tags[idx]);
         this.tags.splice(idx, 1);
 
         // remove from all todos in the current page

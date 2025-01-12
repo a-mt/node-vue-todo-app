@@ -3,7 +3,7 @@
     <div class="flex items-center">
 
       <!-- Drag handle -->
-      <span class="handle cursor-move mr-2">
+      <span class="handle cursor-move mr-2" :class="hideReorder ? 'hidden' : ''">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
           viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -44,6 +44,23 @@
         {{ todo.priority }}
       </button>
 
+      <!-- Associate priority -->
+      <div v-if="showPriorityDialog" class="relative self-end">
+        <div class="fixed inset-0 bg-black/[.06]" @click="showPriorityDialog = false">
+          <div class="bg-black opacity-50"></div>
+        </div>
+        <div class="flex flex-col items-start py-1 px-2 space-y-1 text-sm bg-white rounded shadow-lg absolute z-50 right-0" @click.stop="">
+          <button
+            v-for="({value, title}) in priorities"
+            class="flex whitespace-nowrap text-sm px-1 h-5 rounded text-center text-gray-500 hover:bg-gray-200"
+            :class="{'bg-gray-200': value == todo.priority}"
+            @click="setPriority(value)"
+          >
+            {{ value }}: {{ title }}
+          </button>
+        </div>
+      </div>
+
       <!-- Set tags -->
       <button
         @click="showTagsDialog = true"
@@ -71,7 +88,8 @@
     </div>
   </div>
 
-  <ul class="flex flex-wrap ml-4 pl-10 mt-1">
+  <!-- List of tags -->
+  <ul v-if="this.todo.tags.length" class="flex flex-wrap ml-4 pl-10 mt-1">
     <li v-for="tag in this.todo.tags">
         <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800"
               :style="{'backgroundColor': tag.color, 'color': tag.isLightColor ? 'black': 'white'}">
@@ -79,23 +97,6 @@
         </span>
     </li>
   </ul>
-
-  <!-- Associate priority -->
-  <div v-if="showPriorityDialog" class="relative">
-    <div class="fixed inset-0 bg-black/[.06]" @click="showPriorityDialog = false">
-      <div class="bg-black opacity-50"></div>
-    </div>
-    <div class="flex flex-col items-start py-1 px-2 space-y-1 text-sm bg-white rounded shadow-lg absolute z-50 right-0" @click.stop="">
-      <button
-        v-for="({value, title}) in priorities"
-        class="flex text-sm px-1 h-5 rounded text-center text-gray-500 hover:bg-gray-200"
-        :class="{'bg-gray-200': value == todo.priority}"
-        @click="setPriority(value)"
-      >
-        {{ value }}: {{ title }}
-      </button>
-    </div>
-  </div>
 
   <!-- Associate tags -->
   <div v-if="showTagsDialog" class="relative">
@@ -130,6 +131,7 @@
     props: {
       todo: Object,
       deleteTodo: Function,
+      hideReorder: Boolean,
     },
     inject: ['refreshTodos'],
     emits: ['deletedTag'],
