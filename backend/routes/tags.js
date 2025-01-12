@@ -60,9 +60,8 @@ router.delete('/:id', getTag, async (req, res) => {
         const deletedTag = await Tag.findById(req.params.id);
 
         // Mettre à jour les tags des todos existants
-        await Todo.updateMany({}, {$pull: {tags: {_id: req.params.id}}});
-
-        await Tag.deleteOne({ _id: req.params.id });
+        await Todo.updateMany({}, {$pull: {tags: {_id: deletedTag._id}}});
+        await Tag.deleteOne({ _id: deletedTag._id });
 
         res.json({ message: 'Deleted Tag' });
     } catch (err) {

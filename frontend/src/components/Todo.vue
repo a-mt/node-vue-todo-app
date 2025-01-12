@@ -74,6 +74,9 @@
       <div class="bg-black opacity-50"></div>
     </div>
     <div class="bg-white p-6 rounded shadow-lg absolute z-50" @click.stop="">
+      <div class="-mt-4 mb-2 text-right">
+        <button class="text-xs text-gray-500" @click="showTagsDialog = false">Fermer</button>
+      </div>
       <TagSelect :todo="todo" :toggleTag="toggleTag" />
     </div>
   </div>

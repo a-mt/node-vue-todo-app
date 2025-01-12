@@ -27,8 +27,8 @@ router.get('/search', async (req, res) => {
     }
 
     // Filter by status
-    if ('completed' in req.query) {
-        filter['completed'] = !!req.query.completed;
+    if (req.query.completed) {
+        filter['completed'] = !!parseInt(req.query.completed);
     }
 
     // Sort by priority

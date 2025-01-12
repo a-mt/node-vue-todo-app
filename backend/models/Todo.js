@@ -3,33 +3,36 @@ const mongoose = require('mongoose');
 const TodoSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        required: true,
     },
     completed: {
         type: Boolean,
-        default: false
+        default: false,
+        index: true,
     },
     position: {
         type: Number,
-        default: 0
+        default: 0,
     },
     priority: {
         type: Number,
-        default: 1
+        default: 1,
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
     tags: [{
-        _id: mongoose.ObjectId,
+        _id: {
+            type: mongoose.ObjectId,
+            index: true,
+        },
         title: String,
         color: String,
         isLightColor: Boolean,
     }],
 });
 
-TodoSchema.index({'tags._id': 1});
 TodoSchema.index({
     title: 'text'
 }, {

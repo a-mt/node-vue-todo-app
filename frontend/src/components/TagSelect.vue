@@ -15,7 +15,7 @@
     <!-- Submit -->
     <button
       type="submit"
-      class="text-grey-500 hover:text-grey-700 focus:outline-none ml-2"
+      class="text-grey-500 hover:text-grey-700 ml-2"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 256 256" stroke="currentColor">
         <path d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"/>
@@ -47,7 +47,7 @@
         <!-- Delete -->
         <button
           @click="deleteTag(tag._id)"
-          class="hidden mr-2 text-red-500 hover:text-red-700 focus:outline-none"
+          class="opacity-0 focus:opacity-100 hover:opacity-100 mr-2 text-red-500 hover:text-red-700"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
             viewBox="0 0 24 24" stroke="currentColor">
@@ -114,6 +114,7 @@ export default {
       try {
         await axios.delete(`/api/tags/${id}`);
         this.tags = this.tags.filter(todo => todo._id !== id);
+        console.log(this.tags, id);
         this.showSuccess('Tag supprimé.');
       } catch (error) {
         console.error(error);
@@ -128,7 +129,7 @@ export default {
 </script>
 
 <style>
-  .row:hover button.hidden {
-    display: block;
+  .row:hover .opacity-0 {
+    opacity: 1;
   }
 </style>

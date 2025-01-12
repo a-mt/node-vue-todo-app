@@ -2,7 +2,7 @@
   <button
     type="button"
     class="h-6 w-6 text-xs rounded-full shrink-0" :class="class"
-    @click="showColorPicker = true"
+    @click="showColorPicker = !showColorPicker"
     :style="{'backgroundColor': value}"
   >
   </button>
