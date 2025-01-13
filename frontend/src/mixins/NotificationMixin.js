@@ -1,23 +1,13 @@
 export default {
-  data() {
-    return {
-      notification: '',
-      notificationClass: '',
-    };
-  },
   methods: {
-    showNotification(message, className) {
-      this.notification = message;
-      this.notificationClass = className;
-      setTimeout(() => {
-        this.notification = '';
-      }, 3000);
+    showNotification(msg) {
+      this.$toast.show(msg);
     },
     showError(msg) {
-      this.showNotification(msg, 'bg-red-100 text-red-700');
+      this.$toast.error(msg);
     },
     showSuccess(msg) {
-      this.showNotification(msg, 'bg-green-100 text-green-700');
+      this.$toast.success(msg);
     },
   },
 };

@@ -1,0 +1,18 @@
+
+.c-toast-container {
+  @apply p-1;
+}
+.v--default-css {
+  .c-toast {
+    @apply my-1;
+  }
+  .c-toast--success {
+    @apply bg-green-700 text-green-100;
+  }
+  .c-toast--error {
+    @apply bg-red-700 text-red-100;
+  }
+  .c-toast {
+    @apply max-xs:w-full max-xs:text-center;
+  }
+}

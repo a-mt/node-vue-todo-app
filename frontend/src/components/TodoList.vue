@@ -242,7 +242,7 @@ export default {
         this.hideReorder = this.paramsSort != '';
       } catch (error) {
         console.error(error);
-        this.showSuccess('Erreur lors de la récupération des tâches.');
+        this.showError('Erreur lors de la récupération des tâches.');
       }
     },
     async fetchTags() {
