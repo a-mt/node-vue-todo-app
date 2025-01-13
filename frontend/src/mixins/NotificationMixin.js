@@ -1,9 +1,8 @@
-
 export default {
   data() {
     return {
       notification: '',
-      notificationClass: ''
+      notificationClass: '',
     };
   },
   methods: {

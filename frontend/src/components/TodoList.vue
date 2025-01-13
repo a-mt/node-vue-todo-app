@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Add a new todo -->
-    <form @submit.prevent="addTodo" class="flex mb-4">
+    <form class="flex mb-4" @submit.prevent="addTodo">
       <input
         v-model="newTodo"
         type="text"
@@ -17,24 +17,32 @@
     </form>
 
     <!-- Filter todos -->
-    <div class="flex flex-col mb-4 rounded-md  items-stretch">
-
+    <div class="flex flex-col mb-4 rounded-md items-stretch">
       <!-- Search -->
       <form @submit.prevent="fetchTodos">
-        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+        <label
+          for="default-search"
+          class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+          >Search</label
+        >
         <div class="relative">
-          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
+          <div
+            class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+          >
+            <svg
+              class="w-4 h-4 text-gray-500 dark:text-gray-400"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 20 20"
             >
-              <path stroke="currentColor"
+              <path
+                stroke="currentColor"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
             </svg>
           </div>
           <input
@@ -45,18 +53,29 @@
           />
           <button
             type="submit"
-            class="absolute text-xs end-2.5 bottom-1.5 rounded-lg px-4 py-2 bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            class="absolute text-xs end-2.5 bottom-1.5 rounded-lg px-4 py-2 bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
             Go
           </button>
         </div>
       </form>
 
       <!-- Completed -->
-      <div class="flex flex border border-gray-300 border-t-0 rounded-b-md relative">
-        <label class="absolute h-4 text-xs p-1 pl-2 text-gray-400" for="paramsCompleted">
+      <div
+        class="flex flex border border-gray-300 border-t-0 rounded-b-md relative"
+      >
+        <label
+          class="absolute h-4 text-xs p-1 pl-2 text-gray-400"
+          for="paramsCompleted"
+        >
           Filtrer par statut
         </label>
-        <select name="paramsCompleted" class="text-sm grow p-2 pt-4" v-model="paramsCompleted" @change="fetchTodos">
+        <select
+          v-model="paramsCompleted"
+          name="paramsCompleted"
+          class="text-sm grow p-2 pt-4"
+          @change="fetchTodos"
+        >
           <option value="">--</option>
           <option value="1">Complété</option>
           <option value="0">Non complété</option>
@@ -64,18 +83,24 @@
       </div>
 
       <!-- Tags -->
-      <div class="flex flex border border-gray-300 border-t-0 rounded-b-md relative">
-        <label class="absolute h-4 text-xs p-1 pl-2 text-gray-400" for="paramsCompleted">
+      <div
+        class="flex flex border border-gray-300 border-t-0 rounded-b-md relative"
+      >
+        <label
+          class="absolute h-4 text-xs p-1 pl-2 text-gray-400"
+          for="paramsCompleted"
+        >
           Filtrer par tag
         </label>
-        <select name="paramsTag" class="text-sm grow p-2 pt-4" v-model="paramsTag" @change="fetchTodos">
+        <select
+          v-model="paramsTag"
+          name="paramsTag"
+          class="text-sm grow p-2 pt-4"
+          @change="fetchTodos"
+        >
           <option value="">--</option>
           <transition-group>
-            <option
-              v-for="tag in tags"
-              :key="tag._id"
-              :value="tag._id"
-            >
+            <option v-for="tag in tags" :key="tag._id" :value="tag._id">
               {{ tag.title }}
             </option>
           </transition-group>
@@ -83,26 +108,27 @@
       </div>
 
       <!-- Sort -->
-      <div class="flex flex border border-gray-300 border-t-0 rounded-b-md relative">
-        <label class="absolute h-4 text-xs p-1 pl-2 text-gray-400" for="paramsSort">
+      <div
+        class="flex flex border border-gray-300 border-t-0 rounded-b-md relative"
+      >
+        <label
+          class="absolute h-4 text-xs p-1 pl-2 text-gray-400"
+          for="paramsSort"
+        >
           Trier par
         </label>
-        <select name="paramsSort" class="text-sm grow p-2 pt-4" v-model="paramsSort" @change="fetchTodos">
-          <option value="">
-            --
-          </option>
-          <option value="-position">
-            Sens inverse
-          </option>
-          <option value="-priority">
-            Priorité: haute à basse
-          </option>
-          <option value="priority">
-            Priorité: basse à haute
-          </option>
+        <select
+          v-model="paramsSort"
+          name="paramsSort"
+          class="text-sm grow p-2 pt-4"
+          @change="fetchTodos"
+        >
+          <option value="">--</option>
+          <option value="-position">Sens inverse</option>
+          <option value="-priority">Priorité: haute à basse</option>
+          <option value="priority">Priorité: basse à haute</option>
         </select>
       </div>
-
     </div>
 
     <!-- List of todos -->
@@ -112,7 +138,9 @@
           v-for="todo in todos"
           :key="todo._id"
           class="flex flex-col p-2 bg-gray-50 rounded-md shadow-sm"
-          :class="{'border border-gray-300 border-dashed': todo.isOutsideOrder}"
+          :class="{
+            'border border-gray-300 border-dashed': todo.isOutsideOrder,
+          }"
         >
           <Todo
             :todo="todo"
@@ -125,158 +153,161 @@
     </div>
 
     <!-- Pagination -->
-    <div class="mt-8 flex justify-center" v-if="pagination && pagination.totalCount > 0">
-      <Pagination :page="pagination.page" :pageCount="pagination.pageCount" :gotoPage="gotoPage" />
+    <div
+      v-if="pagination && pagination.totalCount > 0"
+      class="mt-8 flex justify-center"
+    >
+      <Pagination
+        :page="pagination.page"
+        :pageCount="pagination.pageCount"
+        :gotoPage="gotoPage"
+      />
     </div>
   </div>
 </template>
 
 <script>
-  import axios from 'axios';
-  import Sortable from 'sortablejs';
-  import Todo from './Todo.vue';
-  import Pagination from './Pagination.vue';
-  import NotificationMixin from '../mixins/NotificationMixin.js';
+import axios from 'axios';
+import Sortable from 'sortablejs';
+import Todo from './Todo.vue';
+import Pagination from './Pagination.vue';
+import NotificationMixin from '../mixins/NotificationMixin.js';
 
-  export default {
-    name: 'TodoList',
-    mixins: [
-      NotificationMixin,
-    ],
-    components: {
-      Todo,
-      Pagination,
-    },
-    data() {
-      return {
-        todos: [],
-        tags: [],
-        pagination: null,
-        newTodo: '',
-        paramsSearch: '',
-        paramsPage: '',
-        paramsCompleted: '',
-        paramsTag: '',
-        paramsSort: '',
-        hideReorder: false,
-      };
-    },
-    provide() {
-      return {
-        getTags: () => {
-          return this.tags;
-        },
-        refreshTodos: () => {
-          this.fetchTodos(null, this.paramsPage);
-        },
+export default {
+  name: 'TodoList',
+  components: {
+    Todo,
+    Pagination,
+  },
+  mixins: [NotificationMixin],
+  provide() {
+    return {
+      getTags: () => {
+        return this.tags;
+      },
+      refreshTodos: () => {
+        this.fetchTodos(null, this.paramsPage);
+      },
+    };
+  },
+  data() {
+    return {
+      todos: [],
+      tags: [],
+      pagination: null,
+      newTodo: '',
+      paramsSearch: '',
+      paramsPage: '',
+      paramsCompleted: '',
+      paramsTag: '',
+      paramsSort: '',
+      hideReorder: false,
+    };
+  },
+  created() {
+    this.fetchTodos();
+    this.fetchTags();
+  },
+  mounted() {
+    // Initialiser Sortable
+    Sortable.create(this.$refs.sortableList, {
+      handle: '.handle',
+      animation: 150,
+      onEnd: this.onDragEnd,
+    });
+  },
+  methods: {
+    deletedTag(id) {
+      if (id == this.paramsTag) {
+        this.paramsTag = '';
       }
     },
-    methods: {
-      deletedTag(id) {
-        if (id == this.paramsTag) {
-          this.paramsTag = '';
-        }
-      },
-      gotoPage(i) {
-        this.fetchTodos(null, i);
-      },
-      async fetchTodos(event, page=1) {
-        try {
-          const response = await axios.get('/api/todos/search', {
-            params: {
-              q: this.paramsSearch,
-              page,
-              completed: this.paramsCompleted,
-              tag: this.paramsTag,
-              sort: this.paramsSort,
-            }
-          });
-          this.todos = response.data.data;
-          this.pagination = response.data.meta?.pagination;
-          this.paramsPage = this.pagination?.page || 1;
-          this.hideReorder = this.paramsSort != '';
-
-        } catch (error) {
-          console.error(error);
-          this.showSuccess('Erreur lors de la récupération des tâches.');
-        }
-      },
-      async fetchTags() {
-        try {
-          const response = await axios.get('/api/tags');
-          this.tags = response.data;
-        } catch (error) {
-          console.error(error);
-          this.showError('Erreur lors de la récupération des tags.');
-        }
-      },
-      async addTodo() {
-        if (this.newTodo.trim() === '') return;
-        try {
-          const response = await axios.post('/api/todos', { title: this.newTodo });
-          const todo = response.data;
-
-          if (this.paramsSort != '' || this.pagination) {
-            todo.isOutsideOrder = true;
-            this.hideReorder = true;
-          }
-          this.todos.push(todo);
-          this.newTodo = '';
-          this.showSuccess('Tâche ajoutée avec succès.');
-        } catch (error) {
-          console.error(error);
-          this.showError('Erreur lors de l\'ajout de la tâche.');
-        }
-      },
-      async deleteTodo(id) {
-        try {
-          await axios.delete(`/api/todos/${id}`);
-
-          const idx = this.todos.findIndex(item => item._id == id);
-          if (idx != -1) {
-            this.todos.splice(idx, 1);
-          }
-          if (!this.todos.length) {
-            this.gotoPage(this.paramsPage);
-          }
-          this.showSuccess('Tâche supprimée.');
-        } catch (error) {
-          console.error(error);
-          this.showError('Erreur lors de la suppression de la tâche.');
-        }
-      },
-      async onDragEnd(event) {
-        const { oldIndex, newIndex } = event;
-
-        this.todos.splice(
-          newIndex,
-          0,
-          ...this.todos.splice(oldIndex, 1),
-        );
-        try {
-          await axios.put('/api/todos/reorder', {
-            todos: this.todos,
-            positionOffset: this.pagination?.offset,
-          });
-          this.showSuccess('Ordre des tâches mis à jour.');
-        } catch (error) {
-          console.error('Error updating order:', error);
-          this.showError('Erreur lors de la mise à jour de l\'ordre.');
-        }
-      },
+    gotoPage(i) {
+      this.fetchTodos(null, i);
     },
-    mounted() {
-      this.fetchTodos();
-      this.fetchTags();
+    async fetchTodos(event, page = 1) {
+      try {
+        const response = await axios.get('/api/todos/search', {
+          params: {
+            q: this.paramsSearch,
+            page,
+            completed: this.paramsCompleted,
+            tag: this.paramsTag,
+            sort: this.paramsSort,
+          },
+        });
+        this.todos = response.data.data;
+        this.pagination = response.data.meta?.pagination;
+        this.paramsPage = this.pagination?.page || 1;
+        this.hideReorder = this.paramsSort != '';
+      } catch (error) {
+        console.error(error);
+        this.showSuccess('Erreur lors de la récupération des tâches.');
+      }
+    },
+    async fetchTags() {
+      try {
+        const response = await axios.get('/api/tags');
+        this.tags = response.data;
+      } catch (error) {
+        console.error(error);
+        this.showError('Erreur lors de la récupération des tags.');
+      }
+    },
+    async addTodo() {
+      if (this.newTodo.trim() === '') return;
+      try {
+        const response = await axios.post('/api/todos', {
+          title: this.newTodo,
+        });
+        const todo = response.data;
 
-      // Initialiser Sortable
-      Sortable.create(this.$refs.sortableList, {
-        handle: '.handle',
-        animation: 150,
-        onEnd: this.onDragEnd,
-      });
-    }
-  };
+        if (this.paramsSort != '' || this.pagination) {
+          todo.isOutsideOrder = true;
+          this.hideReorder = true;
+        }
+        this.todos.push(todo);
+        this.newTodo = '';
+        this.showSuccess('Tâche ajoutée avec succès.');
+      } catch (error) {
+        console.error(error);
+        this.showError("Erreur lors de l'ajout de la tâche.");
+      }
+    },
+    async deleteTodo(id) {
+      try {
+        await axios.delete(`/api/todos/${id}`);
+
+        const idx = this.todos.findIndex((item) => item._id == id);
+        if (idx != -1) {
+          this.todos.splice(idx, 1);
+        }
+        if (!this.todos.length) {
+          this.gotoPage(this.paramsPage);
+        }
+        this.showSuccess('Tâche supprimée.');
+      } catch (error) {
+        console.error(error);
+        this.showError('Erreur lors de la suppression de la tâche.');
+      }
+    },
+    async onDragEnd(event) {
+      const { oldIndex, newIndex } = event;
+
+      this.todos.splice(newIndex, 0, ...this.todos.splice(oldIndex, 1));
+      try {
+        await axios.put('/api/todos/reorder', {
+          todos: this.todos,
+          positionOffset: this.pagination?.offset,
+        });
+        this.showSuccess('Ordre des tâches mis à jour.');
+      } catch (error) {
+        console.error('Error updating order:', error);
+        this.showError("Erreur lors de la mise à jour de l'ordre.");
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>

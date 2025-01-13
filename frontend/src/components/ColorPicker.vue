@@ -1,11 +1,10 @@
 <template>
   <button
     type="button"
-    class="h-6 w-6 text-xs rounded-full shrink-0" :class="class"
+    class="h-6 w-6 text-xs rounded-full shrink-0"
+    :style="{ backgroundColor: value }"
     @click="showColorPicker = !showColorPicker"
-    :style="{'backgroundColor': value}"
-  >
-  </button>
+  ></button>
 
   <div v-if="showColorPicker" class="relative">
     <div class="fixed inset-0 bg-black/[.06]" @click="showColorPicker = false">
@@ -29,39 +28,37 @@
 </template>
 
 <script>
-  import { Vue3ColorPicker } from '@cyhnkckali/vue3-color-picker';
-  import { ref, watch } from 'vue';
+import { Vue3ColorPicker } from '@cyhnkckali/vue3-color-picker';
+import { ref, watch } from 'vue';
 
-  export default {
-    components: {
-      Vue3ColorPicker,
+export default {
+  components: {
+    Vue3ColorPicker,
+  },
+  props: {
+    modelValue: {
+      type: String,
+      required: true,
     },
-    props: {
-      class: {
-        type: String,
-        default: '',
-      },
-      modelValue: {
-        type: String,
-        required: true,
-      },
+  },
+  emits: ['update:modelValue'],
+  data() {
+    return {
+      showColorPicker: false,
+      value: ref(this.modelValue),
+    };
+  },
+  watch: {
+    value(newColor) {
+      this.$emit('update:modelValue', newColor);
     },
-    data() {
-      return {
-        showColorPicker: false,
-        value: ref(this.modelValue),
-      }
-    },
-    watch: {
-      value(newColor) {
-        this.$emit('update:modelValue', newColor);
-      },
-    }
-  }
+  },
+};
 </script>
 
-<style>
-  .cp-picker-wrap, .picker-hue {
-    height: 70px !important;
-  }
+<style scoed>
+.cp-picker-wrap,
+.picker-hue {
+  height: 70px !important;
+}
 </style>
