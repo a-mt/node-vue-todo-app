@@ -22,6 +22,21 @@ cd todo-app
 docker-compose up --build
 ```
 
+Ou pour lancer directement avec node:
+
+```bash
+# Démarrer mongo
+docker-compose mongo up
+
+# Démarrer le backend
+cd backend
+npm run dev:local
+
+# Démarrer le frontend
+cd frontend
+npm run serve:local
+```
+
 ### 3. Accéder à l'Application
 - Frontend : http://localhost:8080
 - Backend API : http://localhost:5001/api/todos

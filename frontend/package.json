@@ -4,6 +4,7 @@
     "description": "Frontend for Todo App",
     "scripts": {
         "serve": "vue-cli-service serve",
+        "serve:local": "VUE_CLI_SERVICE_CONFIG_PATH=vue.config.local.js vue-cli-service serve",
         "build": "vue-cli-service build"
     },
     "dependencies": {
