@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const Todo = require('../models/Todo');
+const Tag = require('../models/Tag');
 
 // GET all todos
 router.get('/', async (req, res) => {
@@ -145,9 +146,6 @@ router.patch('/:id', getTodo, async (req, res) => {
     if (req.body.completed != null) {
         res.todo.completed = req.body.completed;
     }
-    if (req.body.tags != null) {
-        res.todo.tags = req.body.tags;
-    }
     if (req.body.priority != null) {
         res.todo.priority = req.body.priority;
     }
@@ -156,6 +154,53 @@ router.patch('/:id', getTodo, async (req, res) => {
         res.json(updatedTodo);
     } catch (err) {
         res.status(400).json({ message: err.message });
+    }
+});
+
+// ADD tags to a todo
+router.post('/:id/tags', getTodo, async (req, res) => {
+    const { tags } = req.body;  // Array of ids
+
+    if (!Array.isArray(tags) || tags.length > 10) {
+        return res.status(400).json({ message: 'Invalid data format' });
+    }
+    try {
+        const embeddedTags = await Tag.find({_id: {$in: tags}}, {title: 1, color: 1, isLightColor: 1});
+        if (embeddedTags == null) {
+            return res.status(404).json({ message: 'Cannot find tag' });
+        }
+        res.todo.tags.push(...embeddedTags);
+
+        try {
+            const updatedTodo = await res.todo.save();
+            res.json(updatedTodo);
+        } catch (err) {
+            res.status(400).json({ message: err.message });
+        }
+
+    } catch(err) {
+        return res.status(500).json({ message: err.message });
+    }
+});
+
+// DELETE tags from a todo
+router.delete('/:id/tags', getTodo, async (req, res) => {
+    const { tags } = req.body;  // Array of ids
+
+    if (!Array.isArray(tags) || tags.length > 10) {
+        return res.status(400).json({ message: 'Invalid data format' });
+    }
+    try {
+        res.todo.tags = res.todo.tags.filter(tag => tags.indexOf(""+tag._id) == -1);
+        try {
+            const updatedTodo = await res.todo.save();
+            res.json(updatedTodo);
+        } catch (err) {
+            res.status(400).json({ message: err.message });
+        }
+
+    } catch(err) {
+        return res.status(500).json({ message: err.message });
     }
 });
 

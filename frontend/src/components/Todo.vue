@@ -63,17 +63,17 @@
           <div class="bg-black opacity-50"></div>
         </div>
         <div
-          class="flex flex-col items-start py-1 px-2 space-y-1 text-sm bg-white rounded shadow-lg absolute z-50 right-0"
+          class="flex flex-col items-start py-1 px-2 space-y-1 text-sm bg-white rounded shadow-lg absolute z-50 right-0 mr-2"
           @click.stop=""
         >
           <button
             v-for="{ value, title } in priorities"
             :key="value"
-            class="flex whitespace-nowrap text-sm px-1 h-5 rounded text-center text-gray-500 hover:bg-gray-200"
+            class="whitespace-nowrap text-sm px-1 h-5 rounded text-center text-gray-500 hover:text-gray-700"
             :class="{ 'bg-gray-200': value == todo.priority }"
             @click="setPriority(value)"
           >
-            {{ value }}: {{ title }}
+            {{ value }} - {{ title }}
           </button>
         </div>
       </div>
@@ -154,7 +154,7 @@
       </div>
       <TagSelect
         :todo="todo"
-        :addOrRemoveTag="updateTodoTag"
+        :addOrRemoveTag="addOrRemoveTag"
         @deletedTag="deletedTag"
       />
     </div>
@@ -230,17 +230,23 @@ export default {
         this.showError('Erreur lors de la mise à jour de la tâche.');
       }
     },
-    async updateTodoTag(tag) {
+    async addOrRemoveTag(tag) {
       const tags = this.todo.tags;
       const idx = tags.findIndex((item) => item._id == tag._id);
 
-      if (idx != -1) {
-        tags.splice(idx, 1);
-      } else {
-        tags.push(tag);
-      }
       try {
-        await axios.patch(`/api/todos/${this.todo._id}`, { tags: tags });
+        const method = idx == -1 ? 'post' : 'delete';
+
+        await axios({
+          method,
+          url: `/api/todos/${this.todo._id}/tags`,
+          data: { tags: [tag._id] },
+        });
+        if (idx != -1) {
+          tags.splice(idx, 1);
+        } else {
+          tags.push(tag);
+        }
         this.showSuccess('Tâche mise à jour.');
       } catch (error) {
         console.error(error);

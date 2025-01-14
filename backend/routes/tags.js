@@ -48,6 +48,10 @@ router.patch('/:id', getTag, async (req, res) => {
     }
     try {
         const updatedTag = await res.tag.save();
+
+        // Mettre à jour les tags des todos existants
+        await Todo.updateMany({'tags._id': updatedTag._id}, {$set: {'tags.$': updatedTag}});
+
         res.json(updatedTag);
     } catch (err) {
         res.status(400).json({ message: err.message });

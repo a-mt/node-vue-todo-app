@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tag = require('./Tag');
 
 const TodoSchema = new mongoose.Schema({
     title: {
@@ -22,17 +23,14 @@ const TodoSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    // We assume that a tag's infos (title, color) are rarely updated
+    // But the list of todos is often consulted: keep the tags as embedded documents
     tags: [{
-        _id: {
-            type: mongoose.ObjectId,
-            index: true,
-        },
-        title: String,
-        color: String,
-        isLightColor: Boolean,
+        type: Tag.schema,
     }],
 });
 
+TodoSchema.index({'tags._id': 1});
 TodoSchema.index({
     title: 'text'
 }, {

@@ -107,7 +107,7 @@ export default {
     ColorPicker,
   },
   mixins: [NotificationMixin],
-  inject: ['getTags'],
+  inject: ['getTagsRef'],
   props: {
     todo: {
       type: Object,
@@ -127,7 +127,7 @@ export default {
     };
   },
   created() {
-    this.tags = this.getTags();
+    this.tags = this.getTagsRef();
   },
   methods: {
     async addTag() {
@@ -137,13 +137,18 @@ export default {
           title: this.newTag,
           color: this.newTagColor,
         });
+        // Add inplace to the tags list
         const tag = response.data;
         this.tags.push(tag);
 
+        // Reset the form
         this.newTag = '';
         this.newTagColor = DEFAULT_COLOR;
+
+        // Add to the current todo
         this.addOrRemoveTag(tag);
-        this.showSuccess('Tag ajoutée avec succès.');
+        this.showSuccess('Tag ajouté avec succès.');
+
       } catch (error) {
         console.error(error);
         this.showError("Erreur lors de l'ajout du tag.");
@@ -153,12 +158,14 @@ export default {
       try {
         await axios.delete(`/api/tags/${id}`);
 
+        // Remove inplace from the tags list
         const idx = this.tags.findIndex((item) => item._id == id);
         this.tags.splice(idx, 1);
 
-        // remove from all todos in the current page
+        // Reload all todos once the selector is closed
         this.$emit('deletedTag', id);
         this.showSuccess('Tag supprimé.');
+
       } catch (error) {
         console.error(error);
         this.showError('Erreur lors de la suppression de la tâche.');

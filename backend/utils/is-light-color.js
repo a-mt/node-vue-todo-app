@@ -5,10 +5,10 @@ const isLightColor = function(rgbColor) {
     return null;
   }
   const [r, g, b] = color;
-  const lightness = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+  const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
 
   // 255 = white, 0 = black
-  return lightness > 127.5;
+  return luminance > 140;
 };
 
 module.exports = isLightColor;

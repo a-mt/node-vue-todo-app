@@ -124,9 +124,10 @@
           @change="fetchTodos"
         >
           <option value="">--</option>
-          <option value="-position">Sens inverse</option>
-          <option value="-priority">Priorité: haute à basse</option>
-          <option value="priority">Priorité: basse à haute</option>
+          <option value="-priority">Priorité (haute à basse)</option>
+          <option value="priority">Priorité inverse (basse à haute)</option>
+          <option value="-createdAt">De récent à ancien</option>
+          <option value="createdAt">De ancien à récent</option>
         </select>
       </div>
     </div>
@@ -182,7 +183,7 @@ export default {
   mixins: [NotificationMixin],
   provide() {
     return {
-      getTags: () => {
+      getTagsRef: () => {
         return this.tags;
       },
       refreshTodos: () => {
@@ -201,7 +202,7 @@ export default {
       paramsCompleted: '',
       paramsTag: '',
       paramsSort: '',
-      hideReorder: false,
+      hideReorder: false,  // Disable reorder when we sort the results
     };
   },
   created() {
@@ -240,6 +241,7 @@ export default {
         this.pagination = response.data.meta?.pagination;
         this.paramsPage = this.pagination?.page || 1;
         this.hideReorder = this.paramsSort != '';
+
       } catch (error) {
         console.error(error);
         this.showError('Erreur lors de la récupération des tâches.');
@@ -249,6 +251,7 @@ export default {
       try {
         const response = await axios.get('/api/tags');
         this.tags = response.data;
+
       } catch (error) {
         console.error(error);
         this.showError('Erreur lors de la récupération des tags.');
@@ -262,6 +265,8 @@ export default {
         });
         const todo = response.data;
 
+        // If we add a todo to a sorted list, add it at the end regardless
+        // But disable reorder and visually indicate the new todo
         if (this.paramsSort != '' || this.pagination) {
           todo.isOutsideOrder = true;
           this.hideReorder = true;
@@ -269,6 +274,7 @@ export default {
         this.todos.push(todo);
         this.newTodo = '';
         this.showSuccess('Tâche ajoutée avec succès.');
+
       } catch (error) {
         console.error(error);
         this.showError("Erreur lors de l'ajout de la tâche.");
@@ -282,10 +288,12 @@ export default {
         if (idx != -1) {
           this.todos.splice(idx, 1);
         }
+        // The page is now empty: reload the page
         if (!this.todos.length) {
           this.gotoPage(this.paramsPage);
         }
         this.showSuccess('Tâche supprimée.');
+
       } catch (error) {
         console.error(error);
         this.showError('Erreur lors de la suppression de la tâche.');
@@ -301,6 +309,7 @@ export default {
           positionOffset: this.pagination?.offset,
         });
         this.showSuccess('Ordre des tâches mis à jour.');
+
       } catch (error) {
         console.error('Error updating order:', error);
         this.showError("Erreur lors de la mise à jour de l'ordre.");
