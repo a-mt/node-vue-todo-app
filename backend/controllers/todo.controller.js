@@ -1,22 +1,18 @@
-// backend/routes/todos.js
-
-const express = require('express');
-const router = express.Router();
 const Todo = require('../models/Todo');
 const Tag = require('../models/Tag');
 
-// GET all todos
-router.get('/', async (req, res) => {
+/// GET all todos
+exports.list = async (req, res) => {
     try {
         const todos = await Todo.find().sort('position').exec();
         res.json(todos);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
+};
 
 // GET todos with a pagination, handling search, filter and sort
-router.get('/search', async (req, res) => {
+exports.searchList = async (req, res) => {
     const PAGE_SIZE = 10;
     const filter = {};
 
@@ -97,10 +93,10 @@ router.get('/search', async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
+};
 
 // GET all todos by tag
-router.get('/by-tag/:tagId', async (req, res) => {
+exports.listByTag = async (req, res) => {
     try {
         const todos = await (
             Todo
@@ -112,15 +108,15 @@ router.get('/by-tag/:tagId', async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
+};
 
 // GET one todo
-router.get('/:id', getTodo, (req, res) => {
+exports.get = (req, res) => {
     res.json(res.todo);
-});
+};
 
 // CREATE a todo
-router.post('/', async (req, res) => {
+exports.create = async (req, res) => {
     try {
         const maxPositionTodo = await Todo.findOne().sort('-position').exec();
         const newPosition = maxPositionTodo ? maxPositionTodo.position + 1 : 1;
@@ -136,10 +132,10 @@ router.post('/', async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-});
+};
 
 // UPDATE a todo
-router.patch('/:id', getTodo, async (req, res) => {
+exports.update = async (req, res) => {
     if (req.body.title != null) {
         res.todo.title = req.body.title;
     }
@@ -155,10 +151,10 @@ router.patch('/:id', getTodo, async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-});
+};
 
 // ADD tags to a todo
-router.post('/:id/tags', getTodo, async (req, res) => {
+exports.addTags = async (req, res) => {
     const { tags } = req.body;  // Array of ids
 
     if (!Array.isArray(tags) || tags.length > 10) {
@@ -181,10 +177,10 @@ router.post('/:id/tags', getTodo, async (req, res) => {
     } catch(err) {
         return res.status(500).json({ message: err.message });
     }
-});
+};
 
 // DELETE tags from a todo
-router.delete('/:id/tags', getTodo, async (req, res) => {
+exports.removeTags = async (req, res) => {
     const { tags } = req.body;  // Array of ids
 
     if (!Array.isArray(tags) || tags.length > 10) {
@@ -202,10 +198,10 @@ router.delete('/:id/tags', getTodo, async (req, res) => {
     } catch(err) {
         return res.status(500).json({ message: err.message });
     }
-});
+};
 
 // DELETE a todo
-router.delete('/:id', getTodo, async (req, res) => {
+exports.delete = async (req, res) => {
     try {
         const deletedTodo = await Todo.findById(req.params.id);
         await Todo.deleteOne({ _id: req.params.id });
@@ -220,10 +216,10 @@ router.delete('/:id', getTodo, async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
+};
 
 // REORDER todos
-router.put('/reorder', async (req, res) => {
+exports.reorderList = async (req, res) => {
     const { todos } = req.body; // Array de todos avec les nouvelles positions
     const offset = req.body.positionOffset || 0;
 
@@ -244,21 +240,4 @@ router.put('/reorder', async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
-
-// Middleware to get todo by ID
-async function getTodo(req, res, next) {
-    let todo;
-    try {
-        todo = await Todo.findById(req.params.id);
-        if (todo == null) {
-            return res.status(404).json({ message: 'Cannot find todo' });
-        }
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
-    }
-    res.todo = todo;
-    next();
-}
-
-module.exports = router;
+};

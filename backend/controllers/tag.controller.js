@@ -1,29 +1,24 @@
-// backend/routes/tags.js
-
-const express = require('express');
-const router = express.Router();
 const Tag = require('../models/Tag');
 const Todo = require('../models/Todo');
 const isLightColor = require('../utils/is-light-color');
 
-
 // GET all tags
-router.get('/', async (req, res) => {
+exports.list = async (req, res) => {
     try {
         const tags = await Tag.find().exec();
         res.json(tags);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
+};
 
 // GET one tag
-router.get('/:id', getTag, (req, res) => {
+exports.get = (req, res) => {
     res.json(res.tag);
-});
+};
 
 // CREATE a tag
-router.post('/', async (req, res) => {
+exports.create = async (req, res) => {
     try {
         const tag = new Tag({
             title: req.body.title,
@@ -35,10 +30,10 @@ router.post('/', async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-});
+};
 
 // UPDATE a tag
-router.patch('/:id', getTag, async (req, res) => {
+exports.update = async (req, res) => {
     if (req.body.title != null) {
         res.tag.title = req.body.title;
     }
@@ -56,10 +51,10 @@ router.patch('/:id', getTag, async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-});
+};
 
 // DELETE a tag
-router.delete('/:id', getTag, async (req, res) => {
+exports.delete = async (req, res) => {
     try {
         const deletedTag = await Tag.findById(req.params.id);
 
@@ -71,21 +66,4 @@ router.delete('/:id', getTag, async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
-
-// Middleware to get tag by ID
-async function getTag(req, res, next) {
-    let tag;
-    try {
-        tag = await Tag.findById(req.params.id);
-        if (tag == null) {
-            return res.status(404).json({ message: 'Cannot find tag' });
-        }
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
-    }
-    res.tag = tag;
-    next();
-}
-
-module.exports = router;
+};

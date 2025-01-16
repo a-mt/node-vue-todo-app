@@ -1,10 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const todoRoutes = require('./routes/todos');
-const tagRoutes = require('./routes/tags');
 const net = require('net');
+const bodyParser = require('body-parser');
 
 const app = express();
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/todos';
@@ -25,17 +23,19 @@ const isPortAvailable = (port) => {
 // Fonction pour démarrer le serveur sur le bon port
 const startServer = async () => {
   let PORT = process.env.PORT || 5000;
-  
+
   // Si le port 5000 n'est pas disponible, essayer 5001
   if (!(await isPortAvailable(PORT))) {
     console.log(`Port ${PORT} is not available, trying 5001...`);
     PORT = 5001;
   }
+  const router = express.Router();
+  router.use('/todos', require('./routes/todo.routes.js'));
+  router.use('/tags', require('./routes/tag.routes.js'));
 
   app.use(cors());
   app.use(bodyParser.json());
-  app.use('/api/todos', todoRoutes);
-  app.use('/api/tags', tagRoutes);
+  app.use('/api', router);
 
   try {
     await mongoose.connect(MONGO_URI, {
@@ -44,7 +44,7 @@ const startServer = async () => {
       family: 4
     });
     console.log('Connected to MongoDB');
-    
+
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
       // Stocker le port utilisé dans une variable d'environnement pour que le frontend puisse l'utiliser
