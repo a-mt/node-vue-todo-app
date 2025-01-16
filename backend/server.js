@@ -1,10 +1,7 @@
-const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const net = require('net');
-const bodyParser = require('body-parser');
+const app = require('./app');
 
-const app = express();
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/todos';
 
 // Fonction pour tester si un port est disponible
@@ -29,13 +26,6 @@ const startServer = async () => {
     console.log(`Port ${PORT} is not available, trying 5001...`);
     PORT = 5001;
   }
-  const router = express.Router();
-  router.use('/todos', require('./routes/todo.routes.js'));
-  router.use('/tags', require('./routes/tag.routes.js'));
-
-  app.use(cors());
-  app.use(bodyParser.json());
-  app.use('/api', router);
 
   try {
     await mongoose.connect(MONGO_URI, {

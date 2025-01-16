@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const controller = require('../controllers/tag.controller');
+const Tag = require('../models/Tag');
 
 // Middleware to get tag by ID
 async function getTagMiddleware(req, res, next) {

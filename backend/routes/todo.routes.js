@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const controller = require('../controllers/todo.controller');
+const Todo = require('../models/Todo');
 
 // Middleware to get todo by ID
 async function getTodoMiddleware(req, res, next) {
@@ -26,8 +27,5 @@ router
 .delete('/:id/tags', getTodoMiddleware, controller.removeTags)
 .delete('/:id', getTodoMiddleware, controller.delete)
 .put('/reorder', controller.reorderList);
-
-const { registerDefinition, registerDefinitions } = require('swaggiffy');
-registerDefinition(router, { tags: 'Todos', mappedSchema: 'Todo', basePath: '/todos' });
 
 module.exports = router;

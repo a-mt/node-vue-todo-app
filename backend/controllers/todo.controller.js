@@ -57,6 +57,9 @@ exports.searchList = async (req, res) => {
     }
 
     try {
+        // Wait for ensureIndex to be completed
+        await Todo.init();
+
         // Handle pagination
         const count = await Todo.find(filter).count();
         const pageCount = count ? Math.ceil(count / PAGE_SIZE) : 0;
