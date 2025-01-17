@@ -146,7 +146,7 @@
           <Todo
             :todo="todo"
             :deleteTodo="deleteTodo"
-            :hideReorder="hideReorder"
+            :hideReorder="hideReorder || todo.isOutsideOrder"
             @deletedTag="deletedTag"
           />
         </li>
@@ -267,11 +267,12 @@ export default {
 
         // If we add a todo to a sorted list, add it at the end regardless
         // But disable reorder and visually indicate the new todo
-        if (this.paramsSort != '' || this.pagination) {
+        if (this.paramsSort != '') {
           todo.isOutsideOrder = true;
-          this.hideReorder = true;
+        } else if (this.pagination && this.pagination.page < this.pagination.pageCount) {
+          todo.isOutsideOrder = true;
         }
-        this.todos.push(todo);
+        this.todos.unshift(todo);
         this.newTodo = '';
         this.showSuccess('Tâche ajoutée avec succès.');
 

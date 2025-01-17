@@ -4,7 +4,7 @@
     <button
       v-if="page != 1"
       href="#"
-      class="pagination__item pagination__item--inactive rounded-s-lg"
+      class="pagination__item pagination__item--inactive rounded-s-lg border-e-0"
       @click="gotoPage(page - 1)"
     >
       <span class="sr-only">Précédent</span>
@@ -27,7 +27,7 @@
     <button
       v-if="page > 2"
       aria-current="page"
-      class="pagination__item pagination__item--inactive"
+      class="pagination__item pagination__item--inactive border-e-0"
       @click="gotoPage(1)"
     >
       1
@@ -36,7 +36,7 @@
     <!-- Dots -->
     <span
       v-if="page > 3"
-      class="pagination__item pagination__item--disabled"
+      class="pagination__item pagination__item--disabled border-e-0"
       >...</span
     >
 
@@ -60,14 +60,14 @@
     <!-- Dots -->
     <span
       v-if="page + 2 < pageCount"
-      class="pagination__item pagination__item--disabled"
+      class="pagination__item pagination__item--disabled border-e-0"
       >...</span
     >
 
     <!-- Last -->
     <button
       v-if="page + 1 < pageCount"
-      class="pagination__item pagination__item--inactive"
+      class="pagination__item pagination__item--inactive border-e-0"
       @click="gotoPage(pageCount)"
     >
       {{ pageCount }}
@@ -130,7 +130,7 @@ export default {
 
 <style>
 .pagination__item {
-  @apply flex items-center justify-center px-3 h-8 leading-tight border border-e-0;
+  @apply flex items-center justify-center px-3 h-8 leading-tight border;
 }
 .pagination__item--active {
   @apply text-blue-600 bg-blue-50 border-blue-300;
