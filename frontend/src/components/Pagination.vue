@@ -1,10 +1,10 @@
 <template>
-  <nav class="flex rounded-md" aria-label="Pagination">
+  <nav class="pagination flex rounded-md" aria-label="Pagination">
     <!-- Previous -->
     <button
       v-if="page != 1"
       href="#"
-      class="flex items-center justify-center px-3 h-8 leading-tight border border-e-0 text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 rounded-s-lg"
+      class="pagination__item pagination__item--inactive rounded-s-lg"
       @click="gotoPage(page - 1)"
     >
       <span class="sr-only">Précédent</span>
@@ -27,7 +27,7 @@
     <button
       v-if="page > 2"
       aria-current="page"
-      class="flex items-center justify-center px-3 h-8 leading-tight border border-e-0 text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+      class="pagination__item pagination__item--inactive"
       @click="gotoPage(1)"
     >
       1
@@ -36,7 +36,7 @@
     <!-- Dots -->
     <span
       v-if="page > 3"
-      class="flex items-center justify-center px-3 h-8 leading-tight border border-e-0 text-gray-700 bg-white border-gray-300"
+      class="pagination__item pagination__item--disabled"
       >...</span
     >
 
@@ -44,11 +44,11 @@
     <button
       v-for="i in pageList"
       :key="i"
-      class="flex items-center justify-center px-3 h-8 leading-tight border"
+      class="pagination__item"
       :class="[
         i == page
-          ? 'text-blue-600 bg-blue-50 border-blue-300'
-          : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700',
+          ? 'pagination__item--active'
+          : 'pagination__item--inactive',
         i == 1 && page == 1 ? 'rounded-s-lg' : '',
         i == pageCount && page == pageCount ? 'rounded-e-lg' : 'border-e-0',
       ]"
@@ -60,15 +60,14 @@
     <!-- Dots -->
     <span
       v-if="page + 2 < pageCount"
-      class="flex items-center justify-center px-3 h-8 leading-tight border border-e-0 text-gray-700 bg-white border-gray-300"
+      class="pagination__item pagination__item--disabled"
       >...</span
     >
 
     <!-- Last -->
     <button
       v-if="page + 1 < pageCount"
-      href="#"
-      class="flex items-center justify-center px-3 h-8 leading-tight border border-e-0 text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+      class="pagination__item pagination__item--inactive"
       @click="gotoPage(pageCount)"
     >
       {{ pageCount }}
@@ -77,8 +76,7 @@
     <!-- Next -->
     <button
       v-if="pageCount > 1 && page != pageCount"
-      href="#"
-      class="flex items-center justify-center px-3 h-8 leading-tight border text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 rounded-e-lg"
+      class="pagination__item pagination__item--inactive rounded-e-lg"
       @click="gotoPage(page + 1)"
     >
       <span class="sr-only">Suivant</span>
@@ -129,3 +127,18 @@ export default {
   },
 };
 </script>
+
+<style>
+.pagination__item {
+  @apply flex items-center justify-center px-3 h-8 leading-tight border border-e-0;
+}
+.pagination__item--active {
+  @apply text-blue-600 bg-blue-50 border-blue-300;
+}
+.pagination__item--inactive {
+  @apply text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700;
+}
+.pagination__item--disabled {
+  @apply text-gray-700 bg-white border-gray-300;
+}
+</style>
