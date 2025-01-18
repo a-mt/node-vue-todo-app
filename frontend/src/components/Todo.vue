@@ -144,28 +144,13 @@
     </div>
   </div>
 
-  <!-- List of tags -->
-  <ul v-if="todo.tags.length" class="flex flex-wrap ml-4 pl-10 mt-1">
-    <li v-for="tag in todo.tags" :key="tag._id">
-      <span
-        class="text-xs font-medium me-2 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800"
-        :style="{
-          backgroundColor: tag.color,
-          color: tag.isLightColor ? 'black' : 'white',
-        }"
-      >
-        {{ tag.title }}
-      </span>
-    </li>
-  </ul>
-
-  <!-- Associate tags -->
+  <!-- Associate tags Dialog -->
   <div v-if="showTagsDialog" class="relative">
     <div class="fixed inset-0 bg-black/[.06]" @click="closeTagDialog()">
       <div class="bg-black opacity-50"></div>
     </div>
     <div
-      class="bg-white p-6 rounded shadow-lg absolute z-50 right-0"
+      class="w-max w-max-md bg-white p-6 rounded shadow-lg absolute z-50 right-0"
       @click.stop=""
     >
       <div class="-mt-4 mb-2 text-right">
@@ -177,17 +162,18 @@
         :todo="todo"
         :addOrRemoveTag="addOrRemoveTag"
         @deletedTag="deletedTag"
+        @updatedTag="updatedTag"
       />
     </div>
   </div>
-
-  <!-- Edit -->
+  
+  <!-- Edit Dialog -->
   <div v-if="showEditDialog" class="relative">
     <div class="fixed inset-0 bg-black/[.06]" @click="closeEditDialog()">
       <div class="bg-black opacity-50"></div>
     </div>
     <div
-      class="bg-white p-6 rounded shadow-lg absolute z-50 right-0"
+      class="w-max w-max-md bg-white p-6 rounded shadow-lg absolute z-50 right-0"
       @click.stop=""
     >
       <div class="-mt-4 mb-2 text-right">
@@ -212,6 +198,22 @@
 
     </div>
   </div>
+
+  <!-- List of tags -->
+  <ul v-if="todo.tags.length" class="flex flex-wrap ml-4 pl-10 mt-1">
+    <li v-for="tag in todo.tags" :key="tag._id">
+      <span
+        class="text-xs font-medium me-2 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800"
+        :style="{
+          backgroundColor: tag.color,
+          color: tag.isLightColor ? 'black' : 'white',
+        }"
+      >
+        {{ tag.title }}
+      </span>
+    </li>
+  </ul>
+
 </template>
 
 <script>
@@ -259,6 +261,9 @@ export default {
     deletedTag(id) {
       this.shouldRefreshTodos = true;
       this.$emit('deletedTag', id);
+    },
+    updatedTag(id) {
+      this.shouldRefreshTodos = true;
     },
     closeTagDialog() {
       this.showTagsDialog = false;
